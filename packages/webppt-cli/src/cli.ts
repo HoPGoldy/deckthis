@@ -35,16 +35,15 @@ export async function runCli(argv = process.argv): Promise<void> {
   const { Command } = await import("commander");
   const program = new Command();
 
-  program.name("webppt").description("Web presentation tool").version("0.0.1");
-
   program
-    .command("dev")
-    .description("Start development server")
-    .requiredOption("-c, --content <folder>", "Presentation folder path")
-    .option("--port <number>", "Port to listen on", "3000")
-    .action(async (opts: { content: string; port: string }) => {
-      const folder = path.resolve(opts.content);
-      const port = parseInt(opts.port, 10);
+    .name("webppt")
+    .description("Web presentation tool")
+    .version("0.0.1")
+    .argument("<folder>", "Presentation folder path")
+    .option("--port <number>", "Starting port", "39200")
+    .action(async (folderArg: string, opts: { port: string }) => {
+      const folder = path.resolve(folderArg);
+      let port = parseInt(opts.port, 10);
 
       // Validate folder
       try {
@@ -57,25 +56,29 @@ export async function runCli(argv = process.argv): Promise<void> {
       const config = await loadConfig(folder);
       let currentConfig = await buildSlidesConfig(folder, config);
 
-      try {
-        await startDevServer({
-          folder,
-          port,
-          getConfig: () => currentConfig,
-          onFileChange: async () => {
-            const updatedConfig = await loadConfig(folder);
-            currentConfig = await buildSlidesConfig(folder, updatedConfig);
-          },
-        });
-
-        console.log(`[webppt] Ready → http://localhost:${port}`);
-      } catch (err: unknown) {
-        const nodeErr = err as NodeJS.ErrnoException & { code?: string };
-        if (nodeErr.code === "EADDRINUSE") {
-          console.error(`[webppt] Port ${port} is already in use`);
-          process.exit(1);
+      // Try ports in sequence until one is available
+      while (true) {
+        try {
+          await startDevServer({
+            folder,
+            port,
+            getConfig: () => currentConfig,
+            onFileChange: async () => {
+              const updatedConfig = await loadConfig(folder);
+              currentConfig = await buildSlidesConfig(folder, updatedConfig);
+            },
+          });
+          console.log(`[webppt] Ready → http://localhost:${port}`);
+          break;
+        } catch (err: unknown) {
+          const nodeErr = err as NodeJS.ErrnoException & { code?: string };
+          if (nodeErr.code === "EADDRINUSE") {
+            console.warn(`[webppt] Port ${port} in use, trying ${port + 1}...`);
+            port++;
+          } else {
+            throw err;
+          }
         }
-        throw err;
       }
     });
 

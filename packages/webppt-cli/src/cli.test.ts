@@ -79,7 +79,7 @@ describe("runCli argument validation", () => {
 
   it("exits with code 1 when content folder does not exist", async () => {
     const { runCli } = await import("./cli");
-    await expect(runCli(["node", "webppt", "dev", "-c", "/absolutely/nonexistent/path/xyz"])).rejects.toThrow(
+    await expect(runCli(["node", "webppt", "/absolutely/nonexistent/path/xyz"])).rejects.toThrow(
       "process.exit(1)",
     );
   });
