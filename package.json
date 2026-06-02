@@ -1,0 +1,12 @@
+{
+  "name": "webppt",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build:core": "pnpm --filter webppt-core build",
+    "dev": "pnpm --filter webppt-cli dev",
+    "test": "pnpm -r test",
+    "test:core": "pnpm --filter webppt-core test",
+    "test:cli": "pnpm --filter webppt-cli test"
+  }
+}
