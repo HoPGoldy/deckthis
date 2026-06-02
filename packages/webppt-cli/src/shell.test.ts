@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getShellHtml } from "./shell.js";
+import { getShellHtml } from "./shell";
 
 describe("getShellHtml", () => {
   it("includes the ppt-wrapper IIFE script tag", () => {

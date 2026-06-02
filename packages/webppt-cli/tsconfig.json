@@ -4,9 +4,11 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "lib": ["ES2022"],
+    "types": ["node"],
     "strict": true,
     "skipLibCheck": true,
     "outDir": "dist"
   },
-  "include": ["src", "bin"]
+  "include": ["src", "bin"],
+  "exclude": ["src/**/*.test.ts"]
 }

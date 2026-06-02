@@ -23,7 +23,7 @@ describe("wrapper", () => {
     const { init } = await import("./wrapper.js");
     await init();
 
-    expect(global.fetch).toHaveBeenCalledWith("/__webppt/config");
+    expect(globalThis.fetch).toHaveBeenCalledWith("/__webppt/config");
     expect(mockSlideDeck).toHaveBeenCalledWith({ slides: ["/a.html", "/b.html"] });
   });
 

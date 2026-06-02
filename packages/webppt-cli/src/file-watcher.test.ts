@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { createFileWatcher } from "./file-watcher.js";
+import { createFileWatcher } from "./file-watcher";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";

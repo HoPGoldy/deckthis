@@ -7,6 +7,13 @@ export interface WebPPTConfig {
   overlay?: string;
 }
 
+/** Resolved config passed to the browser (slides list is fully resolved). */
+export interface ResolvedConfig {
+  slides: string[];
+  underlay?: string;
+  overlay?: string;
+}
+
 /** Identity function that provides TypeScript type inference for config objects. */
 export function defineConfig(config: WebPPTConfig): WebPPTConfig {
   return config;

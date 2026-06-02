@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { defineConfig } from "./types.js";
+import { defineConfig } from "./types";
 
 describe("defineConfig", () => {
   it("returns the exact same object reference", () => {

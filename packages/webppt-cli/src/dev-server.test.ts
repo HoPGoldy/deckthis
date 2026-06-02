@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { startDevServer } from "./dev-server.js";
+import { startDevServer } from "./dev-server";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";

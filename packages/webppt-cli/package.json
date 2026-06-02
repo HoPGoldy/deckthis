@@ -4,10 +4,12 @@
   "private": true,
   "type": "module",
   "bin": {
-    "webppt": "./bin/webppt.ts"
+    "webppt": "./dist/webppt.js"
   },
+  "main": "./dist/cli.js",
   "scripts": {
-    "dev": "tsx src/cli.ts",
+    "build": "tsup",
+    "dev": "tsx bin/webppt.ts",
     "test": "vitest run --coverage",
     "test:watch": "vitest"
   },
@@ -19,7 +21,9 @@
     "hono": "^4.4.0"
   },
   "devDependencies": {
+    "@types/node": "^25.9.1",
     "@vitest/coverage-v8": "^2.0.0",
+    "tsup": "^8.5.1",
     "tsx": "^4.15.0",
     "typescript": "^5.4.0",
     "vitest": "^2.0.0"

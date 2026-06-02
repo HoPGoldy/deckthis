@@ -3,14 +3,14 @@ import { serve } from "@hono/node-server";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { WebPPTConfig } from "./types.js";
-import { getShellHtml } from "./shell.js";
-import { createFileWatcher } from "./file-watcher.js";
+import type { WebPPTConfig, ResolvedConfig } from "./types";
+import { getShellHtml } from "./shell";
+import { createFileWatcher } from "./file-watcher";
 
 export interface DevServerOptions {
   folder: string;
   port: number;
-  getConfig(): WebPPTConfig;
+  getConfig(): ResolvedConfig;
   onFileChange?(): void | Promise<void>;
 }
 

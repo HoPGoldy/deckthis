@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-import { runCli } from "../src/cli.js";
+import { runCli } from "../src/cli";
 
 runCli().catch((err) => {
   console.error(err);

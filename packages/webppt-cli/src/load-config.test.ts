@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { loadConfig } from "./load-config.js";
+import { loadConfig } from "./load-config";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";

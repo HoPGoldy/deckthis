@@ -1,20 +1,23 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { loadConfig } from "./load-config.js";
-import { startDevServer } from "./dev-server.js";
-import type { WebPPTConfig } from "./types.js";
+import { loadConfig } from "./load-config";
+import { startDevServer } from "./dev-server";
+import type { WebPPTConfig, ResolvedConfig } from "./types";
 
-export async function buildSlidesConfig(folder: string, config: WebPPTConfig | null): Promise<WebPPTConfig> {
+export async function buildSlidesConfig(
+  folder: string,
+  config: WebPPTConfig | null,
+): Promise<ResolvedConfig> {
   const entries = await fs.readdir(folder);
-  const htmlFiles = entries.filter((f) => f.endsWith(".html") && !f.startsWith("_")).sort();
+  const htmlFiles = entries.filter((f: string) => f.endsWith(".html") && !f.startsWith("_")).sort();
 
   let slides: string[];
   if (config?.order && config.order.length > 0) {
-    const ordered = config.order.map((f) => (f.startsWith("/") ? f.slice(1) : f));
-    const remaining = htmlFiles.filter((f) => !ordered.includes(f));
-    slides = [...ordered, ...remaining].map((f) => `/${f}`);
+    const ordered = config.order.map((f: string) => (f.startsWith("/") ? f.slice(1) : f));
+    const remaining = htmlFiles.filter((f: string) => !ordered.includes(f));
+    slides = [...ordered, ...remaining].map((f: string) => `/${f}`);
   } else {
-    slides = htmlFiles.map((f) => `/${f}`);
+    slides = htmlFiles.map((f: string) => `/${f}`);
   }
 
   const underlayUrl =
@@ -67,7 +70,7 @@ export async function runCli(argv = process.argv): Promise<void> {
 
         console.log(`[webppt] Ready → http://localhost:${port}`);
       } catch (err: unknown) {
-        const nodeErr = err as NodeJS.ErrnoException;
+        const nodeErr = err as NodeJS.ErrnoException & { code?: string };
         if (nodeErr.code === "EADDRINUSE") {
           console.error(`[webppt] Port ${port} is already in use`);
           process.exit(1);

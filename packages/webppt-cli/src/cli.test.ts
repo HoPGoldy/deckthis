@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { buildSlidesConfig } from "./cli.js";
+import { buildSlidesConfig } from "./cli";
 
 describe("buildSlidesConfig", () => {
   let tmpDir: string;
@@ -78,7 +78,7 @@ describe("runCli argument validation", () => {
   });
 
   it("exits with code 1 when content folder does not exist", async () => {
-    const { runCli } = await import("./cli.js");
+    const { runCli } = await import("./cli");
     await expect(runCli(["node", "webppt", "dev", "-c", "/absolutely/nonexistent/path/xyz"])).rejects.toThrow(
       "process.exit(1)",
     );
