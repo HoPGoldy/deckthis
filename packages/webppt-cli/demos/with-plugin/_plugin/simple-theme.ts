@@ -9,10 +9,9 @@
  * 内部通过 wrap 用户传入的配置来叠加自己的逻辑。
  */
 
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import { join } from "node:path";
+import { getDeckDir } from "webppt-cli";
+import type { WebPPTConfig } from "webppt-cli";
 
 export interface SimpleThemeOptions {
   /** 封面页标题 */
@@ -24,16 +23,10 @@ export interface SimpleThemeOptions {
   /** 致谢页副文字 */
   thanksSub?: string;
   /** 用户额外的 WebPPTConfig，插件会将自己的逻辑叠加在上面 */
-  config?: {
-    order?: (discovered: string[]) => string[];
-    underlay?: string;
-    overlay?: string;
-    assets?: string[];
-    beforeEach?: (html: string, ctx: { filename: string; filepath: string }) => string | Promise<string>;
-  };
+  config?: WebPPTConfig;
 }
 
-export function simpleTheme(options: SimpleThemeOptions = {}) {
+export function simpleTheme(options: SimpleThemeOptions = {}): WebPPTConfig {
   const { title, subtitle, thanks, thanksSub, config: userConfig = {} } = options;
 
   // 把封面/致谢页的参数通过 data-* 属性注入到 HTML
@@ -49,12 +42,13 @@ export function simpleTheme(options: SimpleThemeOptions = {}) {
     overlay: userConfig.overlay ?? "/overlay.html",
 
     // 插件携带的静态资源：CSS + 封面 + 致谢 + overlay
+    // getDeckDir() 由 webppt 注入，指向当前 deck 目录
     assets: [
       ...(userConfig.assets ?? []),
-      join(__dirname, "simple-theme.css"),
-      join(__dirname, "cover.html"),
-      join(__dirname, "thanks.html"),
-      join(__dirname, "overlay.html"),
+      join(getDeckDir(), "_plugin", "simple-theme.css"),
+      join(getDeckDir(), "_plugin", "cover.html"),
+      join(getDeckDir(), "_plugin", "thanks.html"),
+      join(getDeckDir(), "_plugin", "overlay.html"),
     ],
 
     // 在发现的 slides 头尾插入封面和致谢页

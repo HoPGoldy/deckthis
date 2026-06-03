@@ -1,24 +1,7 @@
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import * as fs from "node:fs";
+import { join } from "node:path";
+import { defineConfig, getDeckDir } from "webppt-cli";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-const defineConfig = (config) => config;
-
-function resolveDeckRoot(): string {
-  // loadConfig executes this file from a temp module. Resolve the real deck folder from argv.
-  const folderArg = process.argv.find((arg) => {
-    if (!arg) return false;
-    const abs = join(process.cwd(), arg);
-    return fs.existsSync(join(abs, "index.ts"));
-  });
-
-  if (!folderArg) return __dirname;
-  return join(process.cwd(), folderArg);
-}
-
-const deckRoot = resolveDeckRoot();
+const deckRoot = getDeckDir();
 
 export default defineConfig({
   // 1. 自定义幻灯片顺序：把 03 提到最前，其余自动追加

@@ -31,3 +31,13 @@ export interface ResolvedConfig {
 export function defineConfig(config: WebPPTConfig): WebPPTConfig {
   return config;
 }
+
+/**
+ * Returns the absolute path of the deck folder being served.
+ * Only valid when called inside an index.ts config file loaded by webppt.
+ */
+export function getDeckDir(): string {
+  const dir = process.env.WEBPPT_DECK_DIR;
+  if (!dir) throw new Error("[webppt] getDeckDir() must be called inside a webppt config file.");
+  return dir;
+}

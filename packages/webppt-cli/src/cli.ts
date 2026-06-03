@@ -2,7 +2,11 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { loadConfig } from "./load-config";
 import { startDevServer } from "./dev-server";
+import { registerDemoCommand } from "./demo";
 import type { WebPPTConfig, ResolvedConfig } from "./types";
+export { defineConfig } from "./types";
+export type { WebPPTConfig, BeforeEachFn, BeforeEachContext } from "./types";
+export { getDeckDir } from "./types";
 
 export async function buildSlidesConfig(
   folder: string,
@@ -34,10 +38,11 @@ export async function runCli(argv = process.argv): Promise<void> {
   const { Command } = await import("commander");
   const program = new Command();
 
+  program.name("webppt").description("Web presentation tool").version("0.0.1");
+
+  await registerDemoCommand(program);
+
   program
-    .name("webppt")
-    .description("Web presentation tool")
-    .version("0.0.1")
     .argument("<folder>", "Presentation folder path")
     .option("--port <number>", "Starting port", "39200")
     .action(async (folderArg: string, opts: { port: string }) => {

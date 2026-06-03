@@ -1,4 +1,3 @@
-#!/usr/bin/env tsx
 import { runCli } from "../src/cli";
 
 runCli().catch((err) => {
