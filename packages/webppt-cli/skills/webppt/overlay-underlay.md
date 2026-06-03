@@ -83,7 +83,7 @@ webppt 支持两层"全局 iframe"叠加在所有 slide 上：
 当 overlay/underlay 不在默认位置时，在 `index.ts` 中显式指定：
 
 ```typescript
-import { defineConfig } from "webppt-cli";
+import { defineConfig } from "deckthis";
 
 export default defineConfig({
   overlay: "/custom-overlay.html", // 相对于 dev server 根路径

@@ -4,12 +4,16 @@ export default defineConfig({
   entry: {
     webppt: "bin/webppt.ts",
     cli: "src/cli.ts",
+    index: "src/types.ts",
   },
   format: ["esm"],
   target: "node18",
   bundle: true,
   splitting: false,
   clean: true,
+  dts: {
+    entry: { index: "src/types.ts" },
+  },
   banner: {
     js: "#!/usr/bin/env node",
   },

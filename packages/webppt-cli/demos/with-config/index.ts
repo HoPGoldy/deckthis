@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { defineConfig, getDeckDir } from "webppt-cli";
+import { defineConfig, getDeckDir } from "deckthis";
 
 const deckRoot = getDeckDir();
 

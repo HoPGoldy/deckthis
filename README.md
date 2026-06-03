@@ -169,5 +169,5 @@ examples/
 ## 问题
 
 - Cannot find module 'webppt-cli' or its corresponding type declarations.
-- sessets 支持目录
+- assets 支持目录
 - overlay/underlay 支持数据传递和刷新

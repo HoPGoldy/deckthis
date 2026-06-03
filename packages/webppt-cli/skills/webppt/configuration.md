@@ -5,7 +5,7 @@
 ## 最小示例
 
 ```typescript
-import { defineConfig } from "webppt-cli";
+import { defineConfig } from "deckthis";
 
 export default defineConfig({});
 ```
@@ -57,7 +57,7 @@ underlay: "/_underlay.html", // 同上
 
 ```typescript
 import { join } from "node:path";
-import { getDeckDir } from "webppt-cli";
+import { getDeckDir } from "deckthis";
 
 assets: [
   join(getDeckDir(), "theme.css"),      // 访问 /theme.css
@@ -91,7 +91,7 @@ beforeEach: async (html, ctx) => {
 返回当前 deck folder 的绝对路径。**只能在 `index.ts` 加载期间调用**（webppt 通过环境变量注入）。
 
 ```typescript
-import { getDeckDir } from "webppt-cli";
+import { getDeckDir } from "deckthis";
 
 const deckRoot = getDeckDir();
 // 用于拼接 assets 路径

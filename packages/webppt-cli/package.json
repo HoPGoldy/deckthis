@@ -1,12 +1,19 @@
 {
-  "name": "webppt-cli",
+  "name": "deckthis",
   "version": "0.0.1",
   "private": true,
   "type": "module",
   "bin": {
-    "webppt": "./dist/webppt.js"
+    "deckthis": "./dist/webppt.js"
   },
   "main": "./dist/cli.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsup",
     "dev": "tsx bin/webppt.ts",

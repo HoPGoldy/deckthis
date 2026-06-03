@@ -10,8 +10,8 @@
  */
 
 import { join } from "node:path";
-import { getDeckDir } from "webppt-cli";
-import type { WebPPTConfig } from "webppt-cli";
+import { getDeckDir } from "deckthis";
+import type { WebPPTConfig } from "deckthis";
 
 export interface SimpleThemeOptions {
   /** 封面页标题 */

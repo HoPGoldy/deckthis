@@ -83,6 +83,7 @@ export function SlideDeck(options: SlideDeckOptions): SlideDeckInstance {
   });
 
   // ── Overlay ───────────────────────────────────────────────────────────────
+  let overlayEl: HTMLIFrameElement | null = null;
   if (overlay) {
     const el = document.createElement("iframe");
     el.className = "sd-overlay";
@@ -97,6 +98,7 @@ export function SlideDeck(options: SlideDeckOptions): SlideDeckInstance {
       pointerEvents: "none",
     });
     deckEl.appendChild(el);
+    overlayEl = el;
   }
 
   container.appendChild(deckEl);
