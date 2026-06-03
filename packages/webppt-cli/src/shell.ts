@@ -11,7 +11,15 @@ const SHELL_HTML = `<!DOCTYPE html>
   <body>
     <script src="/__webppt/ppt-wrapper.iife.js"></script>
     <script>
+      let state = "init"; // "init" | "connected" | "disconnected"
       const es = new EventSource("/__sse");
+      es.onopen = () => {
+        if (state === "disconnected") location.reload();
+        state = "connected";
+      };
+      es.onerror = () => {
+        if (state === "connected") state = "disconnected";
+      };
       es.onmessage = () => location.reload();
     </script>
   </body>
