@@ -13,5 +13,5 @@ export default defineConfig({
   banner: {
     js: "#!/usr/bin/env node",
   },
-  onSuccess: "rm -rf dist/demos && cp -r demos dist/demos",
+  onSuccess: "rm -rf dist/demos && cp -r demos dist/demos && rm -rf dist/skills && cp -r skills dist/skills",
 });

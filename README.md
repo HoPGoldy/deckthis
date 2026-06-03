@@ -165,3 +165,9 @@ examples/
   with-config/     # defineConfig 示例
   with-plugin/     # 插件示例
 ```
+
+## 问题
+
+- Cannot find module 'webppt-cli' or its corresponding type declarations.
+- sessets 支持目录
+- overlay/underlay 支持数据传递和刷新

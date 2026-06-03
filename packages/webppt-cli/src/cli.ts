@@ -3,6 +3,7 @@ import * as path from "node:path";
 import { loadConfig } from "./load-config";
 import { startDevServer } from "./dev-server";
 import { registerDemoCommand } from "./demo";
+import { registerSkillCommand } from "./skill";
 import type { WebPPTConfig, ResolvedConfig } from "./types";
 export { defineConfig } from "./types";
 export type { WebPPTConfig, BeforeEachFn, BeforeEachContext } from "./types";
@@ -41,6 +42,7 @@ export async function runCli(argv = process.argv): Promise<void> {
   program.name("webppt").description("Web presentation tool").version("0.0.1");
 
   await registerDemoCommand(program);
+  await registerSkillCommand(program);
 
   program
     .argument("<folder>", "Presentation folder path")
