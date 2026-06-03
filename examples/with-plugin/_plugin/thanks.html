@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- simple-theme.css 由插件的 beforeEach 注入 -->
+</head>
+
+<body>
+  <div class="thanks">
+    <h1 id="thanks-text">谢谢</h1>
+    <div class="divider"></div>
+    <p id="thanks-sub">Thank you for watching</p>
+  </div>
+  <script>
+    const el = document.currentScript.closest('body');
+    const text = el.dataset.thanks;
+    const sub = el.dataset.thanksSub;
+    if (text) document.getElementById('thanks-text').textContent = text;
+    if (sub) document.getElementById('thanks-sub').textContent = sub;
+  </script>
+</body>
+
+</html>

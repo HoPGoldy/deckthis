@@ -12,10 +12,9 @@ export async function buildSlidesConfig(
   const htmlFiles = entries.filter((f: string) => f.endsWith(".html") && !f.startsWith("_")).sort();
 
   let slides: string[];
-  if (config?.order && config.order.length > 0) {
-    const ordered = config.order.map((f: string) => (f.startsWith("/") ? f.slice(1) : f));
-    const remaining = htmlFiles.filter((f: string) => !ordered.includes(f));
-    slides = [...ordered, ...remaining].map((f: string) => `/${f}`);
+  if (config?.order) {
+    const discovered = htmlFiles.map((f: string) => `/${f}`);
+    slides = config.order(discovered);
   } else {
     slides = htmlFiles.map((f: string) => `/${f}`);
   }
@@ -55,6 +54,7 @@ export async function runCli(argv = process.argv): Promise<void> {
 
       const config = await loadConfig(folder);
       let currentConfig = await buildSlidesConfig(folder, config);
+      let currentPluginConfig = { assets: config?.assets, beforeEach: config?.beforeEach };
 
       // Try ports in sequence until one is available
       while (true) {
@@ -63,9 +63,14 @@ export async function runCli(argv = process.argv): Promise<void> {
             folder,
             port,
             getConfig: () => currentConfig,
+            getPluginConfig: () => currentPluginConfig,
             onFileChange: async () => {
               const updatedConfig = await loadConfig(folder);
               currentConfig = await buildSlidesConfig(folder, updatedConfig);
+              currentPluginConfig = {
+                assets: updatedConfig?.assets,
+                beforeEach: updatedConfig?.beforeEach,
+              };
             },
           });
           console.log(`[webppt] Ready → http://localhost:${port}`);

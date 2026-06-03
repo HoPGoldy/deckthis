@@ -12,12 +12,28 @@ describe("defineConfig", () => {
     expect(defineConfig({})).toEqual({});
   });
 
-  it("preserves order, underlay and overlay fields", () => {
+  it("preserves underlay and overlay fields", () => {
     const config = {
-      order: ["02.html", "01.html"],
       underlay: "/_underlay.html",
       overlay: "/_overlay.html",
     };
     expect(defineConfig(config)).toEqual(config);
+  });
+
+  it("preserves order function", () => {
+    const order = (discovered: string[]) => discovered;
+    const config = { order };
+    expect(defineConfig(config).order).toBe(order);
+  });
+
+  it("preserves assets array", () => {
+    const config = { assets: ["/abs/path/theme.css"] };
+    expect(defineConfig(config)).toEqual(config);
+  });
+
+  it("preserves beforeEach function", () => {
+    const beforeEach = (html: string) => html;
+    const config = { beforeEach };
+    expect(defineConfig(config).beforeEach).toBe(beforeEach);
   });
 });

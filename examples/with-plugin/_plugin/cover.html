@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- simple-theme.css 由插件的 beforeEach 注入 -->
+</head>
+
+<body>
+  <div class="cover">
+    <h1 id="title">Presentation Title</h1>
+    <div class="divider"></div>
+    <p id="subtitle">Subtitle goes here</p>
+  </div>
+  <script>
+    // 封面页接受来自插件的标题参数（通过 data 属性注入）
+    const el = document.currentScript.closest('body');
+    const title = el.dataset.title;
+    const subtitle = el.dataset.subtitle;
+    if (title) document.getElementById('title').textContent = title;
+    if (subtitle) document.getElementById('subtitle').textContent = subtitle;
+  </script>
+</body>
+
+</html>

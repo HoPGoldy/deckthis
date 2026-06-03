@@ -48,13 +48,39 @@ describe("buildSlidesConfig", () => {
     expect(result.overlay).toBe("/_overlay.html");
   });
 
-  it("respects config.order for slide ordering", async () => {
+  it("respects config.order function for slide ordering", async () => {
     await fs.writeFile(path.join(tmpDir, "01.html"), "");
     await fs.writeFile(path.join(tmpDir, "02.html"), "");
     await fs.writeFile(path.join(tmpDir, "03.html"), "");
 
-    const result = await buildSlidesConfig(tmpDir, { order: ["03.html", "01.html"] });
-    expect(result.slides).toEqual(["/03.html", "/01.html", "/02.html"]);
+    const result = await buildSlidesConfig(tmpDir, {
+      order: (discovered) => [discovered[2], discovered[0]],
+    });
+    expect(result.slides).toEqual(["/03.html", "/01.html"]);
+  });
+
+  it("passes auto-discovered slides to the order function", async () => {
+    await fs.writeFile(path.join(tmpDir, "01.html"), "");
+    await fs.writeFile(path.join(tmpDir, "02.html"), "");
+
+    let captured: string[] = [];
+    await buildSlidesConfig(tmpDir, {
+      order: (discovered) => {
+        captured = discovered;
+        return discovered;
+      },
+    });
+    expect(captured).toEqual(["/01.html", "/02.html"]);
+  });
+
+  it("order function can prepend and append extra slides", async () => {
+    await fs.writeFile(path.join(tmpDir, "01.html"), "");
+    await fs.writeFile(path.join(tmpDir, "02.html"), "");
+
+    const result = await buildSlidesConfig(tmpDir, {
+      order: (slides) => ["/cover.html", ...slides, "/thanks.html"],
+    });
+    expect(result.slides).toEqual(["/cover.html", "/01.html", "/02.html", "/thanks.html"]);
   });
 
   it("uses config.underlay over auto-detection", async () => {
