@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "build": "pnpm build:core && pnpm --filter webppt-cli build",
     "build:core": "pnpm --filter webppt-core build",
     "dev": "pnpm --filter webppt-cli dev",
     "test": "pnpm -r test",

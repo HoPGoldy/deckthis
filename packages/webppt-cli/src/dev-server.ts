@@ -15,7 +15,7 @@ export interface DevServerOptions {
   onFileChange?(): void | Promise<void>;
 }
 
-const vendorDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "../vendor");
+const vendorDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "../../webppt-core/dist");
 
 export async function startDevServer(options: DevServerOptions): Promise<() => Promise<void>> {
   const { folder, port, getConfig, getPluginConfig, onFileChange } = options;
