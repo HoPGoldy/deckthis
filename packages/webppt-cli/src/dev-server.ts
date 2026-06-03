@@ -99,6 +99,8 @@ export async function startDevServer(options: DevServerOptions): Promise<() => P
 
     const contentType = (fp: string) => mimeTypes[path.extname(fp)] ?? "application/octet-stream";
 
+    const isHtml = (fp: string) => path.extname(fp) === ".html";
+
     // 1. Try user folder first
     try {
       const content = await fs.readFile(filePath);
@@ -109,9 +111,12 @@ export async function startDevServer(options: DevServerOptions): Promise<() => P
         console.warn(`\x1b[33m[webppt] ⚠ asset "${basename}" 被工作目录同名文件覆盖\x1b[0m`);
       }
 
-      const html = content.toString("utf-8");
-      const result = await applyBeforeEach(html, filePath, pluginConfig.beforeEach);
-      return new Response(result, { headers: { "Content-Type": contentType(filePath) } });
+      if (isHtml(filePath)) {
+        const html = content.toString("utf-8");
+        const result = await applyBeforeEach(html, filePath, pluginConfig.beforeEach);
+        return new Response(result, { headers: { "Content-Type": contentType(filePath) } });
+      }
+      return new Response(content, { headers: { "Content-Type": contentType(filePath) } });
     } catch {
       // Fall through to assets
     }
@@ -121,9 +126,12 @@ export async function startDevServer(options: DevServerOptions): Promise<() => P
     if (assetFile) {
       try {
         const content = await fs.readFile(assetFile);
-        const html = content.toString("utf-8");
-        const result = await applyBeforeEach(html, assetFile, pluginConfig.beforeEach);
-        return new Response(result, { headers: { "Content-Type": contentType(assetFile) } });
+        if (isHtml(assetFile)) {
+          const html = content.toString("utf-8");
+          const result = await applyBeforeEach(html, assetFile, pluginConfig.beforeEach);
+          return new Response(result, { headers: { "Content-Type": contentType(assetFile) } });
+        }
+        return new Response(content, { headers: { "Content-Type": contentType(assetFile) } });
       } catch {
         // Fall through to 404
       }
