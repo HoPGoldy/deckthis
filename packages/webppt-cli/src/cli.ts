@@ -1,38 +1,44 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { loadConfig } from "./load-config";
-import { startDevServer } from "./dev-server";
+import * as net from "node:net";
+import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
+import { spawn, type ChildProcess } from "node:child_process";
+import { buildSlidesConfig } from "./load-config";
 import { registerDemoCommand } from "./demo";
 import { registerSkillCommand } from "./skill";
-import type { WebPPTConfig, ResolvedConfig } from "./types";
+import { createFileWatcher } from "./file-watcher";
 export { defineConfig } from "./types";
 export type { WebPPTConfig, BeforeEachFn, BeforeEachContext } from "./types";
 export { getDeckDir } from "./types";
+export { buildSlidesConfig } from "./load-config";
 
-export async function buildSlidesConfig(
-  folder: string,
-  config: WebPPTConfig | null,
-): Promise<ResolvedConfig> {
-  const entries = await fs.readdir(folder);
-  const htmlFiles = entries.filter((f: string) => f.endsWith(".html") && !f.startsWith("_")).sort();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const workerPath = path.join(__dirname, "worker.js");
+const _require = createRequire(import.meta.url);
+const tsxEsmPath = _require.resolve("tsx/esm");
 
-  let slides: string[];
-  if (config?.order) {
-    const discovered = htmlFiles.map((f: string) => `/${f}`);
-    slides = config.order(discovered);
-  } else {
-    slides = htmlFiles.map((f: string) => `/${f}`);
-  }
+function spawnWorker(folder: string, port: number): ChildProcess {
+  return spawn(
+    process.execPath,
+    ["--import", tsxEsmPath, workerPath, "--folder", folder, "--port", String(port)],
+    { stdio: "inherit" },
+  );
+}
 
-  const underlayUrl =
-    config?.underlay ?? (entries.includes("_underlay.html") ? "/_underlay.html" : undefined);
-  const overlayUrl = config?.overlay ?? (entries.includes("_overlay.html") ? "/_overlay.html" : undefined);
-
-  return {
-    slides,
-    ...(underlayUrl ? { underlay: underlayUrl } : {}),
-    ...(overlayUrl ? { overlay: overlayUrl } : {}),
-  };
+async function findFreePort(startPort: number): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.once("error", (err: NodeJS.ErrnoException) => {
+      if (err.code === "EADDRINUSE") {
+        console.warn(`[webppt] Port ${startPort} in use, trying ${startPort + 1}...`);
+        resolve(findFreePort(startPort + 1));
+      } else {
+        reject(err);
+      }
+    });
+    server.listen(startPort, () => server.close(() => resolve(startPort)));
+  });
 }
 
 export async function runCli(argv = process.argv): Promise<void> {
@@ -49,7 +55,6 @@ export async function runCli(argv = process.argv): Promise<void> {
     .option("--port <number>", "Starting port", "39200")
     .action(async (folderArg: string, opts: { port: string }) => {
       const folder = path.resolve(folderArg);
-      let port = parseInt(opts.port, 10);
 
       // Validate folder
       try {
@@ -59,39 +64,29 @@ export async function runCli(argv = process.argv): Promise<void> {
         process.exit(1);
       }
 
-      const config = await loadConfig(folder);
-      let currentConfig = await buildSlidesConfig(folder, config);
-      let currentPluginConfig = { assets: config?.assets, beforeEach: config?.beforeEach };
+      const port = await findFreePort(parseInt(opts.port, 10));
+      let child = spawnWorker(folder, port);
 
-      // Try ports in sequence until one is available
-      while (true) {
-        try {
-          await startDevServer({
-            folder,
-            port,
-            getConfig: () => currentConfig,
-            getPluginConfig: () => currentPluginConfig,
-            onFileChange: async () => {
-              const updatedConfig = await loadConfig(folder);
-              currentConfig = await buildSlidesConfig(folder, updatedConfig);
-              currentPluginConfig = {
-                assets: updatedConfig?.assets,
-                beforeEach: updatedConfig?.beforeEach,
-              };
-            },
-          });
-          console.log(`[webppt] Ready → http://localhost:${port}`);
-          break;
-        } catch (err: unknown) {
-          const nodeErr = err as NodeJS.ErrnoException & { code?: string };
-          if (nodeErr.code === "EADDRINUSE") {
-            console.warn(`[webppt] Port ${port} in use, trying ${port + 1}...`);
-            port++;
-          } else {
-            throw err;
-          }
-        }
-      }
+      // Restart child on any file change — new process = fresh module cache
+      const watcher = createFileWatcher(folder);
+      watcher.onChange(() => {
+        console.log("[webppt] File changed, restarting...");
+        child.kill();
+        child = spawnWorker(folder, port);
+      });
+
+      const cleanup = async () => {
+        child.kill();
+        await watcher.close();
+      };
+      process.once("SIGINT", async () => {
+        await cleanup();
+        process.exit(0);
+      });
+      process.once("SIGTERM", async () => {
+        await cleanup();
+        process.exit(0);
+      });
     });
 
   await program.parseAsync(argv);

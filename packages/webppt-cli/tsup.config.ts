@@ -5,6 +5,7 @@ export default defineConfig({
     webppt: "bin/webppt.ts",
     cli: "src/cli.ts",
     index: "src/types.ts",
+    worker: "src/worker.ts",
   },
   format: ["esm"],
   target: "node18",

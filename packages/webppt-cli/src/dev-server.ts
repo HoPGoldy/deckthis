@@ -5,32 +5,20 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { WebPPTConfig, ResolvedConfig, BeforeEachFn } from "./types";
 import { getShellHtml } from "./shell";
-import { createFileWatcher } from "./file-watcher";
 
 export interface DevServerOptions {
   folder: string;
   port: number;
   getConfig(): ResolvedConfig;
   getPluginConfig?(): Pick<WebPPTConfig, "assets" | "beforeEach">;
-  onFileChange?(): void | Promise<void>;
 }
 
 const vendorDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "../../webppt-core/dist");
 
 export async function startDevServer(options: DevServerOptions): Promise<() => Promise<void>> {
-  const { folder, port, getConfig, getPluginConfig, onFileChange } = options;
+  const { folder, port, getConfig, getPluginConfig } = options;
 
   const app = new Hono();
-  const sseClients = new Set<(data: string) => void>();
-
-  // ── File watcher ───────────────────────────────────────────────────────────
-  const watcher = createFileWatcher(folder);
-
-  watcher.onChange(async () => {
-    await onFileChange?.();
-    console.log(`[webppt] File changed, reloading ${sseClients.size} client(s)...`);
-    sseClients.forEach((send) => send("reload"));
-  });
 
   // ── Routes ─────────────────────────────────────────────────────────────────
 
@@ -41,18 +29,8 @@ export async function startDevServer(options: DevServerOptions): Promise<() => P
   app.get("/__sse", (c) => {
     const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
     const writer = writable.getWriter();
-    const encoder = new TextEncoder();
-
-    const send = (data: string) => {
-      writer.write(encoder.encode(`data: ${data}\n\n`)).catch(() => {
-        sseClients.delete(send);
-      });
-    };
-
-    sseClients.add(send);
 
     c.req.raw.signal?.addEventListener("abort", () => {
-      sseClients.delete(send);
       writer.close().catch(() => {});
     });
 
@@ -163,7 +141,6 @@ export async function startDevServer(options: DevServerOptions): Promise<() => P
   });
 
   return async () => {
-    await watcher.close();
     await new Promise<void>((resolve) => server.close(() => resolve()));
   };
 }
