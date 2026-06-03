@@ -3,3 +3,4 @@ dist/
 coverage/
 *.tsbuildinfo
 packages/webppt-cli/vendor/
+.DS_Store
