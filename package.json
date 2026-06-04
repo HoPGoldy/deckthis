@@ -8,6 +8,10 @@
     "dev": "pnpm --filter deckthis dev",
     "test": "pnpm -r test",
     "test:core": "pnpm --filter deckthis-core test",
-    "test:cli": "pnpm --filter deckthis test"
+    "test:cli": "pnpm --filter deckthis test",
+    "release": "commit-and-tag-version && git push --follow-tags origin main"
+  },
+  "devDependencies": {
+    "commit-and-tag-version": "^12.7.3"
   }
 }
