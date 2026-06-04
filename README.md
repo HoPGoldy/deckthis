@@ -168,6 +168,5 @@ examples/
 
 ## 问题
 
-- assets 仅支持目录
 - overlay/underlay 支持数据传递和刷新
-- 前进后退更新 URL
+- 支持导出为 pptx 格式

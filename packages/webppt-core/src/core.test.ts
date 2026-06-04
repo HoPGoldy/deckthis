@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { SlideDeck } from "./core.js";
+import { SlideDeck, collectSlideData } from "./core.js";
 
 const TEST_URL = "http://localhost/";
 
@@ -375,6 +375,182 @@ describe("SlideDeck", () => {
       const deck = SlideDeck({ slides: ["/a.html"], el: container });
       deck.destroy();
       expect(container.querySelector(".sd-deck")).toBeNull();
+    });
+  });
+  // ── collectSlideData ───────────────────────────────────────────────────────────
+
+  describe("collectSlideData", () => {
+    function makeIframeWithMeta(metas: Record<string, string>): HTMLIFrameElement {
+      const iframe = document.createElement("iframe");
+      container.appendChild(iframe);
+      const doc = iframe.contentDocument!;
+      for (const [name, content] of Object.entries(metas)) {
+        const el = doc.createElement("meta");
+        el.setAttribute("name", name);
+        el.setAttribute("content", content);
+        doc.head.appendChild(el);
+      }
+      return iframe;
+    }
+
+    it("returns {} for an iframe with no meta", () => {
+      const iframe = document.createElement("iframe");
+      container.appendChild(iframe);
+      expect(collectSlideData(iframe)).toEqual({});
+    });
+
+    it("reads a single webppt:title meta", () => {
+      const iframe = makeIframeWithMeta({ "webppt:title": "Hello" });
+      expect(collectSlideData(iframe)).toEqual({ title: "Hello" });
+    });
+
+    it("reads multiple webppt:* metas", () => {
+      const iframe = makeIframeWithMeta({ "webppt:title": "My Title", "webppt:section": "intro" });
+      expect(collectSlideData(iframe)).toEqual({ title: "My Title", section: "intro" });
+    });
+
+    it("falls back to <title> when webppt:title is absent", () => {
+      const iframe = document.createElement("iframe");
+      container.appendChild(iframe);
+      iframe.contentDocument!.title = "Page Title";
+      expect(collectSlideData(iframe)).toEqual({ title: "Page Title" });
+    });
+
+    it("does not override webppt:title with <title> fallback", () => {
+      const iframe = makeIframeWithMeta({ "webppt:title": "Meta Title" });
+      iframe.contentDocument!.title = "Page Title";
+      expect(collectSlideData(iframe)).toEqual({ title: "Meta Title" });
+    });
+
+    it("ignores non-webppt meta tags", () => {
+      const iframe = makeIframeWithMeta({ description: "some desc", "webppt:title": "T" });
+      expect(collectSlideData(iframe)).toEqual({ title: "T" });
+    });
+  });
+
+  // ── slide-data broadcast ────────────────────────────────────────────────────
+
+  describe("slide-data broadcast", () => {
+    it("sends webppt:slide-change to overlay contentWindow on goto()", () => {
+      const deck = SlideDeck({
+        slides: ["/a.html", "/b.html"],
+        el: container,
+        overlay: "/_overlay.html",
+      });
+      const overlayEl = container.querySelector<HTMLIFrameElement>(".sd-overlay")!;
+      const postMessageSpy = vi.spyOn(overlayEl.contentWindow!, "postMessage");
+
+      // Force slide 1's readyState to "complete" so broadcast is synchronous
+      const slideEl = container.querySelectorAll<HTMLIFrameElement>(".sd-slide")[1];
+      Object.defineProperty(slideEl.contentDocument, "readyState", {
+        value: "complete",
+        configurable: true,
+      });
+
+      deck.goto(1);
+
+      expect(postMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "webppt:slide-change", index: 1 }),
+        "*",
+      );
+      deck.destroy();
+    });
+
+    it("sends webppt:slide-change to underlay contentWindow on goto()", () => {
+      const deck = SlideDeck({
+        slides: ["/a.html", "/b.html"],
+        el: container,
+        underlay: "/_underlay.html",
+      });
+      const underlayEl = container.querySelector<HTMLIFrameElement>(".sd-underlay")!;
+      const postMessageSpy = vi.spyOn(underlayEl.contentWindow!, "postMessage");
+
+      // Force slide 1's readyState to "complete" so broadcast is synchronous
+      const slideEl = container.querySelectorAll<HTMLIFrameElement>(".sd-slide")[1];
+      Object.defineProperty(slideEl.contentDocument, "readyState", {
+        value: "complete",
+        configurable: true,
+      });
+
+      deck.goto(1);
+
+      expect(postMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "webppt:slide-change", index: 1 }),
+        "*",
+      );
+      deck.destroy();
+    });
+
+    it("does not throw when there is no overlay or underlay", () => {
+      const deck = SlideDeck({ slides: ["/a.html", "/b.html"], el: container });
+      expect(() => deck.goto(1)).not.toThrow();
+      deck.destroy();
+    });
+
+    it("message includes title collected from slide meta", () => {
+      const deck = SlideDeck({
+        slides: ["/a.html", "/b.html"],
+        el: container,
+        overlay: "/_overlay.html",
+      });
+      const overlayEl = container.querySelector<HTMLIFrameElement>(".sd-overlay")!;
+      const postMessageSpy = vi.spyOn(overlayEl.contentWindow!, "postMessage");
+
+      // Write a webppt:title meta into slide 1's document before navigating
+      const slideEl = container.querySelectorAll<HTMLIFrameElement>(".sd-slide")[1];
+      const meta = slideEl.contentDocument!.createElement("meta");
+      meta.setAttribute("name", "webppt:title");
+      meta.setAttribute("content", "Slide Two");
+      slideEl.contentDocument!.head.appendChild(meta);
+
+      // Force readyState to "complete" so broadcast is synchronous
+      Object.defineProperty(slideEl.contentDocument, "readyState", {
+        value: "complete",
+        configurable: true,
+      });
+
+      deck.goto(1);
+
+      expect(postMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "webppt:slide-change", index: 1, title: "Slide Two" }),
+        "*",
+      );
+      deck.destroy();
+    });
+
+    it("defers broadcast until load when slide readyState is not complete", () => {
+      const deck = SlideDeck({
+        slides: ["/a.html", "/b.html", "/c.html"],
+        el: container,
+        overlay: "/_overlay.html",
+      });
+      const overlayEl = container.querySelector<HTMLIFrameElement>(".sd-overlay")!;
+      const postMessageSpy = vi.spyOn(overlayEl.contentWindow!, "postMessage");
+
+      // Simulate slide 2 not yet loaded
+      const slideEl = container.querySelectorAll<HTMLIFrameElement>(".sd-slide")[2];
+      Object.defineProperty(slideEl.contentDocument, "readyState", {
+        value: "loading",
+        configurable: true,
+      });
+
+      deck.goto(2);
+
+      // Should not have broadcast for index 2 yet
+      const slide2Calls = postMessageSpy.mock.calls.filter(
+        (args) => (args[0] as { index?: number }).index === 2,
+      );
+      expect(slide2Calls).toHaveLength(0);
+
+      // Fire the load event
+      slideEl.dispatchEvent(new Event("load"));
+
+      const slide2CallsAfter = postMessageSpy.mock.calls.filter(
+        (args) => (args[0] as { index?: number }).index === 2,
+      );
+      expect(slide2CallsAfter).toHaveLength(1);
+      expect(slide2CallsAfter[0][0]).toMatchObject({ type: "webppt:slide-change", index: 2 });
+      deck.destroy();
     });
   });
 });

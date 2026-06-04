@@ -91,6 +91,56 @@ export default defineConfig({
 });
 ```
 
+## Slide 数据广播（`webppt:*` meta 标签）
+
+每次切换 slide 时，shell 会自动读取当前 slide 的 `<meta name="webppt:*">` 标签，并通过 `postMessage` 将数据广播给 overlay 和 underlay。
+
+### Slide 端：声明数据
+
+在 slide HTML 的 `<head>` 中添加 `webppt:` 前缀的 meta 标签：
+
+```html
+<head>
+  <meta name="webppt:title" content="项目背景" />
+  <meta name="webppt:section" content="01" />
+</head>
+```
+
+**`title` 回退规则**：若没有 `webppt:title`，自动使用 `<title>` 标签内容。
+
+### Overlay/Underlay 端：接收数据
+
+在 overlay / underlay 中监听 `message` 事件：
+
+```javascript
+window.addEventListener("message", (e) => {
+  if (e.data?.type !== "webppt:slide-change") return;
+
+  // e.data 结构：
+  // {
+  //   type: 'webppt:slide-change',
+  //   index: 2,          // 当前 slide 索引（0-based）
+  //   title: '项目背景', // webppt:title meta 或 <title> 的内容
+  //   section: '01',     // 其他自定义 webppt:* meta（任意 key）
+  // }
+
+  document.getElementById("slide-title").textContent = e.data.title ?? "";
+});
+```
+
+### 消息格式
+
+| 字段     | 类型                    | 说明                                                    |
+| -------- | ----------------------- | ------------------------------------------------------- |
+| `type`   | `"webppt:slide-change"` | 固定值，用于区分消息来源                                |
+| `index`  | `number`                | 当前 slide 的 0-based 索引                              |
+| `title`  | `string?`               | `webppt:title` meta 或 `<title>` 内容，无则不存在此字段 |
+| 其他 key | `string?`               | slide 中所有 `webppt:*` meta 对应的 key/value           |
+
+### 初始加载
+
+overlay 加载完成后，shell 会自动发送一次当前 slide 的数据，无需等待用户翻页。
+
 ## 注意事项
 
 - overlay / underlay 的 HTML 文件**必须**通过 `assets` 挂载或放置在 deck folder 内才能被 dev server 访问

@@ -15,24 +15,53 @@
     body {
       width: 100%;
       height: 100%;
+      position: relative;
     }
 
     body {
-      display: flex;
-      align-items: flex-end;
-      justify-content: flex-end;
-      padding: 1.2rem 1.6rem;
       font-family: 'Segoe UI', system-ui, sans-serif;
+      pointer-events: none;
+    }
+
+    #slide-title {
+      position: absolute;
+      top: 1.2rem;
+      left: 1.6rem;
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      max-width: 50%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: opacity 200ms;
+    }
+
+    #slide-title:empty {
+      opacity: 0;
+    }
+
+    #label {
+      position: absolute;
+      bottom: 1.2rem;
+      right: 1.6rem;
       color: rgba(255, 255, 255, 0.35);
       font-size: 0.8rem;
-      pointer-events: none;
     }
   </style>
 </head>
 
 <body>
-  <!-- overlay: 右下角显示页码，由 webppt core 注入 slide index -->
+  <span id="slide-title"></span>
   <span id="label">with-config demo</span>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type !== 'webppt:slide-change') return;
+      document.getElementById('slide-title').textContent = e.data.title ?? '';
+    });
+  </script>
 </body>
 
 </html>

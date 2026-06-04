@@ -42,6 +42,29 @@ function syncSlideIndexToUrl(index: number): void {
   window.history.replaceState(window.history.state, "", url.toString());
 }
 
+/**
+ * Collects all `webppt:*` meta tags from a slide iframe as a key-value object.
+ * Falls back to `<title>` for the `title` key if no `webppt:title` meta is present.
+ */
+export function collectSlideData(iframe: HTMLIFrameElement): Record<string, string> {
+  const doc = iframe.contentDocument;
+  if (!doc) return {};
+
+  const PREFIX = "webppt:";
+  const data: Record<string, string> = {};
+
+  doc.querySelectorAll<HTMLMetaElement>(`meta[name^="${PREFIX}"]`).forEach((el) => {
+    const key = el.getAttribute("name")!.slice(PREFIX.length);
+    data[key] = el.getAttribute("content") ?? "";
+  });
+
+  if (!data.title && doc.title) {
+    data.title = doc.title;
+  }
+
+  return data;
+}
+
 export function SlideDeck(options: SlideDeckOptions): SlideDeckInstance {
   const { slides, underlay, overlay } = options;
 
@@ -72,6 +95,7 @@ export function SlideDeck(options: SlideDeckOptions): SlideDeckInstance {
   });
 
   // ── Underlay ─────────────────────────────────────────────────────────────
+  let underlayEl: HTMLIFrameElement | null = null;
   if (underlay) {
     const el = document.createElement("iframe");
     el.className = "sd-underlay";
@@ -86,6 +110,7 @@ export function SlideDeck(options: SlideDeckOptions): SlideDeckInstance {
       pointerEvents: "none",
     });
     deckEl.appendChild(el);
+    underlayEl = el;
   }
 
   // ── Slide iframes ─────────────────────────────────────────────────────────
@@ -160,6 +185,20 @@ export function SlideDeck(options: SlideDeckOptions): SlideDeckInstance {
     console.log("[webppt-debug]", ...args);
   };
 
+  function broadcastSlideChange(index: number, iframe: HTMLIFrameElement): void {
+    const data = collectSlideData(iframe);
+    const msg = { type: "webppt:slide-change", index, ...data };
+    debug("broadcastSlideChange", {
+      index,
+      data,
+      hasOverlay: !!overlayEl,
+      overlayContentWindow: !!overlayEl?.contentWindow,
+      hasUnderlay: !!underlayEl,
+    });
+    overlayEl?.contentWindow?.postMessage(msg, "*");
+    underlayEl?.contentWindow?.postMessage(msg, "*");
+  }
+
   function goto(index: number): void {
     if (index < 0 || index >= slides.length) {
       debug("goto blocked", {
@@ -180,6 +219,14 @@ export function SlideDeck(options: SlideDeckOptions): SlideDeckInstance {
     showSlide(currentIndex);
     preload(currentIndex);
     syncSlideIndexToUrl(currentIndex);
+
+    // Broadcast slide metadata to overlay / underlay
+    const iframe = slideEls[index];
+    if (iframe.contentDocument?.readyState === "complete") {
+      broadcastSlideChange(index, iframe);
+    } else {
+      iframe.addEventListener("load", () => broadcastSlideChange(index, iframe), { once: true });
+    }
   }
 
   // ── Keyboard handler (attached to any document that has focus) ───────────
@@ -371,6 +418,22 @@ export function SlideDeck(options: SlideDeckOptions): SlideDeckInstance {
   preload(currentIndex);
   showSlide(currentIndex);
   syncSlideIndexToUrl(currentIndex);
+
+  // When overlay first loads, send current slide data (covers initial page load)
+  overlayEl?.addEventListener(
+    "load",
+    () => {
+      const iframe = slideEls[currentIndex];
+      if (iframe.contentDocument?.readyState === "complete") {
+        broadcastSlideChange(currentIndex, iframe);
+      } else {
+        iframe.addEventListener("load", () => broadcastSlideChange(currentIndex, iframe), {
+          once: true,
+        });
+      }
+    },
+    { signal, once: true },
+  );
 
   // ── Touch swipe (threshold 50px) ──────────────────────────────────────────
   let touchStartX = 0;
