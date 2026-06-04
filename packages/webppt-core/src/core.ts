@@ -17,6 +17,31 @@ export interface SlideDeckInstance {
   destroy(): void;
 }
 
+const SLIDE_SEARCH_PARAM = "slide";
+
+function getInitialSlideIndex(slideCount: number): number {
+  const raw = new URLSearchParams(window.location.search).get(SLIDE_SEARCH_PARAM);
+  const parsed = Number.parseInt(raw ?? "", 10);
+
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return 0;
+  }
+
+  return Math.min(parsed - 1, Math.max(slideCount - 1, 0));
+}
+
+function syncSlideIndexToUrl(index: number): void {
+  const url = new URL(window.location.href);
+
+  if (index <= 0) {
+    url.searchParams.delete(SLIDE_SEARCH_PARAM);
+  } else {
+    url.searchParams.set(SLIDE_SEARCH_PARAM, String(index + 1));
+  }
+
+  window.history.replaceState(window.history.state, "", url.toString());
+}
+
 export function SlideDeck(options: SlideDeckOptions): SlideDeckInstance {
   const { slides, underlay, overlay } = options;
 
@@ -127,7 +152,7 @@ export function SlideDeck(options: SlideDeckOptions): SlideDeckInstance {
   }
 
   // ── State ─────────────────────────────────────────────────────────────────
-  let currentIndex = 0;
+  let currentIndex = getInitialSlideIndex(slides.length);
 
   const debugEnabled = true;
   const debug = (...args: unknown[]): void => {
@@ -154,6 +179,7 @@ export function SlideDeck(options: SlideDeckOptions): SlideDeckInstance {
     currentIndex = index;
     showSlide(currentIndex);
     preload(currentIndex);
+    syncSlideIndexToUrl(currentIndex);
   }
 
   // ── Keyboard handler (attached to any document that has focus) ───────────
@@ -342,8 +368,9 @@ export function SlideDeck(options: SlideDeckOptions): SlideDeckInstance {
   });
 
   // Initial setup – must come AFTER load listeners so we don't miss the load event
-  preload(0);
-  showSlide(0);
+  preload(currentIndex);
+  showSlide(currentIndex);
+  syncSlideIndexToUrl(currentIndex);
 
   // ── Touch swipe (threshold 50px) ──────────────────────────────────────────
   let touchStartX = 0;

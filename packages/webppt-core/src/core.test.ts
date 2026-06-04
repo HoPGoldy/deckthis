@@ -1,5 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { SlideDeck } from "./core.js";
+
+const TEST_URL = "http://localhost/";
 
 describe("SlideDeck", () => {
   let container: HTMLElement;
@@ -7,10 +9,12 @@ describe("SlideDeck", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    window.location.href = TEST_URL;
   });
 
   afterEach(() => {
     document.body.removeChild(container);
+    window.location.href = TEST_URL;
   });
 
   // ── DOM structure ──────────────────────────────────────────────────────────
@@ -175,6 +179,64 @@ describe("SlideDeck", () => {
       expect(deck.current()).toBe(0);
       deck.goto(5);
       expect(deck.current()).toBe(0);
+      deck.destroy();
+    });
+
+    it("initializes from the slide search param", () => {
+      window.location.href = `${TEST_URL}?slide=2`;
+
+      const deck = SlideDeck({ slides: ["/a.html", "/b.html", "/c.html"], el: container });
+
+      expect(deck.current()).toBe(1);
+
+      const slides = container.querySelectorAll<HTMLIFrameElement>(".sd-slide");
+      expect(slides[0].style.opacity).toBe("0");
+      expect(slides[1].style.opacity).toBe("1");
+      expect(slides[2].style.opacity).toBe("0");
+      deck.destroy();
+    });
+
+    it("clamps an out-of-range slide search param to the last slide", () => {
+      window.location.href = `${TEST_URL}?slide=99`;
+      const replaceStateSpy = vi.spyOn(window.history, "replaceState");
+
+      const deck = SlideDeck({ slides: ["/a.html", "/b.html", "/c.html"], el: container });
+
+      expect(deck.current()).toBe(2);
+      expect(replaceStateSpy).toHaveBeenLastCalledWith(window.history.state, "", `${TEST_URL}?slide=3`);
+      deck.destroy();
+    });
+
+    it("updates the slide search param after navigation", () => {
+      const replaceStateSpy = vi.spyOn(window.history, "replaceState");
+      const deck = SlideDeck({ slides: ["/a.html", "/b.html", "/c.html"], el: container });
+
+      deck.next();
+      expect(replaceStateSpy).toHaveBeenLastCalledWith(window.history.state, "", `${TEST_URL}?slide=2`);
+
+      deck.goto(2);
+      expect(replaceStateSpy).toHaveBeenLastCalledWith(window.history.state, "", `${TEST_URL}?slide=3`);
+
+      deck.prev();
+      expect(replaceStateSpy).toHaveBeenLastCalledWith(window.history.state, "", `${TEST_URL}?slide=2`);
+
+      deck.goto(0);
+      expect(replaceStateSpy).toHaveBeenLastCalledWith(window.history.state, "", TEST_URL);
+      deck.destroy();
+    });
+
+    it("removes an invalid slide search param during initialization", () => {
+      window.location.href = `${TEST_URL}?slide=abc&mode=present#intro`;
+      const replaceStateSpy = vi.spyOn(window.history, "replaceState");
+
+      const deck = SlideDeck({ slides: ["/a.html", "/b.html"], el: container });
+
+      expect(deck.current()).toBe(0);
+      expect(replaceStateSpy).toHaveBeenLastCalledWith(
+        window.history.state,
+        "",
+        `${TEST_URL}?mode=present#intro`,
+      );
       deck.destroy();
     });
   });
