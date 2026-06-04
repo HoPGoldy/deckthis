@@ -2,7 +2,13 @@
   "name": "deckthis",
   "version": "0.1.0",
   "description": "Write presentations as HTML files, served with a lightweight dev server",
-  "keywords": ["presentation", "slides", "html", "deck", "cli"],
+  "keywords": [
+    "presentation",
+    "slides",
+    "html",
+    "deck",
+    "cli"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/HoPGoldy/deckthis#readme",
   "repository": {

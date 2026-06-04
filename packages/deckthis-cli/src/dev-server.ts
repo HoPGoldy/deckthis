@@ -13,11 +13,8 @@ export interface DevServerOptions {
   getPluginConfig?(): Pick<DeckthisConfig, "assets" | "beforeEach">;
 }
 
-const vendorDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "../../deckthis-core/dist");
-const faviconPath = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../deckthis-core/favicon.svg",
-);
+const vendorDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "../vendor");
+const faviconPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "../vendor/favicon.svg");
 
 function resolveAssetPath(rootDir: string, pathname: string): string | null {
   const relativePath = pathname.replace(/^\/+/, "");
