@@ -2,5 +2,5 @@ node_modules/
 dist/
 coverage/
 *.tsbuildinfo
-packages/webppt-cli/vendor/
+packages/deckthis-cli/vendor/
 .DS_Store

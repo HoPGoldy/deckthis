@@ -1,172 +1,226 @@
-# webppt
+# deckthis
 
-用 HTML 文件写演示文稿，在浏览器里展示。每张幻灯片就是一个普通的 `.html` 文件。
+Write presentations as plain HTML files. Each slide is a standalone `.html` file — no framework, no build step, just open your editor.
 
-## 快速开始
+**[中文文档 →](README.zh.md)**
 
-**前置条件**：Node.js 18+，pnpm
-
-```bash
-# 克隆并安装依赖
-pnpm install
-
-# 构建 core 运行时（首次或修改 core 后运行）
-pnpm build:core
-```
-
-启动开发服务器：
+## Installation
 
 ```bash
-npx tsx packages/webppt-cli/bin/webppt.ts <演示文稿目录>
-
-# 示例
-npx tsx packages/webppt-cli/bin/webppt.ts examples/basic
+npm install -g deckthis
 ```
 
-浏览器打开 `http://localhost:39200`。
+Or run without installing:
 
-## 操作方式
+```bash
+npx deckthis <folder>
+```
 
-| 操作                | 说明       |
-| ------------------- | ---------- |
-| `→` / `↓` / `Space` | 下一张     |
-| `←` / `↑`           | 上一张     |
-| 左右滑动            | 移动端翻页 |
+## Quick Start
 
-## 目录结构
-
-一个演示文稿目录包含若干 `.html` 文件：
+1. Create a folder and add slide HTML files:
 
 ```
-my-deck/
-  01.html          # 幻灯片（按文件名字母序自动发现）
+my-talk/
+  01.html
   02.html
   03.html
-  _overlay.html    # 前景层（页码、Logo 等），可选
-  _underlay.html   # 背景装饰层，可选
-  deckthis.config.ts # 配置文件，可选
 ```
 
-- `_` 前缀文件不会被当作普通幻灯片，用于 overlay / underlay
-- 配置文件为 `deckthis.config.ts`，使用 `defineConfig` 导出
+2. Start the dev server:
 
-## 配置（deckthis.config.ts）
+```bash
+deckthis my-talk
+```
+
+3. Open `http://localhost:39200` in your browser.
+
+Slides are served in alphabetical filename order. Edit any file and the browser reloads automatically.
+
+## Navigation
+
+| Input               | Action         |
+| ------------------- | -------------- |
+| `→` / `↓` / `Space` | Next slide     |
+| `←` / `↑`           | Previous slide |
+| Swipe left/right    | Mobile nav     |
+
+## Deck Folder Structure
+
+```
+my-talk/
+  01.html              # Slides — discovered alphabetically
+  02.html
+  03.html
+  _overlay.html        # Foreground layer (page numbers, logo…) — optional
+  _underlay.html       # Background decoration layer — optional
+  deckthis.config.ts   # Config file — optional
+```
+
+- Files prefixed with `_` are excluded from the slide list and used as overlay / underlay.
+- The config file is named `deckthis.config.ts` and uses `defineConfig` for type safety.
+
+## Configuration (`deckthis.config.ts`)
 
 ```ts
-import { defineConfig } from "webppt-cli";
+import { defineConfig } from "deckthis";
 
 export default defineConfig({
-  // 自定义幻灯片顺序（接收自动发现的列表，返回最终顺序）
+  // Control slide order — receives the auto-discovered list, returns the final order
   order: (discovered) => {
     const intro = discovered.find((s) => s === "/intro.html");
     const rest = discovered.filter((s) => s !== "/intro.html");
     return intro ? [intro, ...rest] : discovered;
   },
 
-  // 额外静态资源目录（绝对路径，按请求路径回退查找）
+  // Extra static asset directories (absolute paths, searched in order after the deck folder)
   assets: ["/path/to/theme-assets"],
 
-  // 在每张幻灯片 HTML 被服务前转换（不含 overlay/underlay）
+  // Transform each slide's HTML before it is served (not applied to overlay/underlay)
   beforeEach: (html, ctx) => {
     return html.replace("</head>", '<link rel="stylesheet" href="/theme.css"></head>');
   },
 
-  // 手动指定 overlay / underlay（默认自动检测目录下的 _overlay.html / _underlay.html）
+  // Explicitly set overlay / underlay (defaults to auto-detecting _overlay.html / _underlay.html)
   overlay: "/_overlay.html",
   underlay: "/_underlay.html",
 });
 ```
 
-### 配置项说明
+### Config Reference
 
-| 字段         | 类型                                       | 说明                                           |
-| ------------ | ------------------------------------------ | ---------------------------------------------- |
-| `order`      | `(discovered: string[]) => string[]`       | 控制幻灯片顺序，可插入插件提供的额外页         |
-| `assets`     | `string[]`                                 | 绝对目录路径列表，按请求路径顺序回退查询       |
-| `beforeEach` | `(html, ctx) => string \| Promise<string>` | 每张 slide 的 HTML 转换钩子                    |
-| `overlay`    | `string`                                   | 前景 iframe URL，默认自动检测 `_overlay.html`  |
-| `underlay`   | `string`                                   | 背景 iframe URL，默认自动检测 `_underlay.html` |
+| Field        | Type                                       | Description                                                   |
+| ------------ | ------------------------------------------ | ------------------------------------------------------------- |
+| `order`      | `(discovered: string[]) => string[]`       | Customize slide order; can insert plugin-provided extra pages |
+| `assets`     | `string[]`                                 | Absolute directory paths for static asset fallback lookup     |
+| `beforeEach` | `(html, ctx) => string \| Promise<string>` | Transform a slide's HTML before serving                       |
+| `overlay`    | `string`                                   | Foreground iframe URL; auto-detected from `_overlay.html`     |
+| `underlay`   | `string`                                   | Background iframe URL; auto-detected from `_underlay.html`    |
 
-## 插件
+## Overlay & Underlay
 
-插件是一个普通函数，接收用户配置，返回合并后的配置对象：
+`_overlay.html` sits above all slides (pointer-events disabled by default), `_underlay.html` sits below.
+
+On every slide change, deckthis broadcasts a `postMessage` to both frames:
 
 ```ts
-function myTheme(userConfig = {}) {
-  return {
-    overlay: "/_theme/overlay.html",
-    assets: ["/path/to/_theme"],
-    order: (discovered) => [
-      "/_theme/cover.html",
-      ...(userConfig.order ? userConfig.order(discovered) : discovered),
-      "/_theme/thanks.html",
-    ],
-    beforeEach: async (html, ctx) => {
-      let result = userConfig.beforeEach ? await userConfig.beforeEach(html, ctx) : html;
-      return result.replace("</head>", '<link rel="stylesheet" href="/_theme/theme.css"></head>');
-    },
-  };
-}
-
-export default myTheme({
-  // 传入用户自己的配置，插件负责包裹
+window.addEventListener("message", (e) => {
+  if (e.data?.type !== "deckthis:slide-change") return;
+  const { current, total, title } = e.data;
+  // current: 1-based slide number
+  // total: total slide count
+  // title: from <meta name="deckthis:title"> or <title>
 });
 ```
 
-插件约定：
+Add metadata to any slide:
 
-- 插件文件放在 `_plugin/` 等 `_` 前缀目录下，不会被当作幻灯片
-- 插件是纯函数，不感知框架内部，只做配置变换
-- 需要包裹 `order` / `beforeEach` 时，先调用用户版本再追加插件逻辑
-
-## 示例
-
-```bash
-# 最简示例（3 张幻灯片）
-npx tsx packages/webppt-cli/bin/webppt.ts examples/basic
-
-# 演示 defineConfig 所有能力（order / assets / beforeEach / overlay / underlay）
-npx tsx packages/webppt-cli/bin/webppt.ts examples/with-config
-
-# 演示插件机制（simpleTheme 插件封装 cover + thanks 页、全局 CSS）
-npx tsx packages/webppt-cli/bin/webppt.ts examples/with-plugin
+```html
+<meta name="deckthis:title" content="Introduction" /> <meta name="deckthis:section" content="01" />
 ```
 
-## 开发
+## Plugins
+
+A plugin is a plain function that wraps user config and returns a merged config:
+
+```ts
+// _plugin/my-theme.ts
+import type { DeckthisConfig } from "deckthis";
+
+export function myTheme(userConfig: DeckthisConfig = {}): DeckthisConfig {
+  return {
+    overlay: "/_plugin/overlay.html",
+    assets: ["/path/to/_plugin"],
+    order: (discovered) => [
+      "/_plugin/cover.html",
+      ...(userConfig.order ? userConfig.order(discovered) : discovered),
+      "/_plugin/thanks.html",
+    ],
+    beforeEach: async (html, ctx) => {
+      const base = userConfig.beforeEach ? await userConfig.beforeEach(html, ctx) : html;
+      return base.replace("</head>", '<link rel="stylesheet" href="/_plugin/theme.css"></head>');
+    },
+  };
+}
+```
+
+```ts
+// deckthis.config.ts
+import { myTheme } from "./_plugin/my-theme";
+
+export default myTheme({
+  // pass your own config; the plugin wraps it
+});
+```
+
+**Plugin conventions:**
+
+- Place plugin files under a `_`-prefixed directory (e.g. `_plugin/`) so they are not treated as slides.
+- Plugins are pure functions — they only transform config, with no knowledge of deckthis internals.
+- When wrapping `order` or `beforeEach`, call the user's version first, then apply plugin logic.
+
+## CLI Commands
 
 ```bash
-# 运行所有测试
+deckthis <folder>              # Start dev server (default port 39200)
+deckthis <folder> --port 3000  # Use a custom port
+
+deckthis demo list             # List built-in demos
+deckthis demo <name>           # Copy a demo to the current directory
+
+deckthis skill                 # Copy the AI coding skill to a skills directory
+```
+
+## `getDeckDir()`
+
+Inside `deckthis.config.ts`, call `getDeckDir()` to get the absolute path of the deck folder. Useful for constructing asset paths dynamically:
+
+```ts
+import { defineConfig, getDeckDir } from "deckthis";
+import path from "node:path";
+
+export default defineConfig({
+  assets: [path.join(getDeckDir(), "_assets")],
+});
+```
+
+## Examples
+
+After installing, copy and run the built-in demos:
+
+```bash
+deckthis demo basic        # Three slides, minimal setup
+deckthis demo with-config  # Demonstrates all defineConfig options
+deckthis demo with-plugin  # Demonstrates the plugin pattern
+cd basic && deckthis .
+```
+
+## Development (monorepo)
+
+```bash
+pnpm install
+
+# Build the browser runtime (required before first run or after editing core)
+pnpm build:core
+
+# Run all tests
 pnpm test
 
-# 只测试 core
+# Run tests for a specific package
 pnpm test:core
-
-# 只测试 cli
 pnpm test:cli
-
-# 修改 core.ts 后重新构建（dev server 读取 webppt-core/dist）
-pnpm build:core
 ```
 
-## 项目结构
+## Project Structure
 
 ```
 packages/
-  webppt-core/     # 浏览器端运行时（SlideDeck）
-    src/core.ts    # iframe 布局、键盘/触摸导航、overlay/underlay
-    src/wrapper.ts # IIFE 入口，fetch /__webppt/config 后初始化
-  webppt-cli/      # 开发服务器 + CLI
-    src/cli.ts     # CLI 入口，buildSlidesConfig
-    src/dev-server.ts  # Hono 服务器，SSE 热更新，assets/beforeEach
-    src/load-config.ts # 加载 deckthis.config.ts 并动态 import
-    src/types.ts   # DeckthisConfig、defineConfig
-examples/
-  basic/           # 最简示例
-  with-config/     # defineConfig 示例
-  with-plugin/     # 插件示例
+  deckthis-core/          # Browser runtime (SlideDeck)
+    src/core.ts           # iframe layout, keyboard/touch navigation, overlay/underlay
+    src/wrapper.ts        # IIFE entry — fetches /__deckthis/config and initialises SlideDeck
+  deckthis-cli/           # Dev server + CLI
+    src/cli.ts            # CLI entry, port management, file-watch restart
+    src/dev-server.ts     # Hono server, SSE hot-reload, assets/beforeEach pipeline
+    src/load-config.ts    # Loads deckthis.config.ts via dynamic import
+    src/types.ts          # DeckthisConfig, defineConfig, getDeckDir
 ```
-
-## 问题
-
-- overlay/underlay 支持数据传递和刷新
-- 支持导出为 pptx 格式

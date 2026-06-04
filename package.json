@@ -1,13 +1,13 @@
 {
-  "name": "webppt",
+  "name": "deckthis-workspace",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "build": "pnpm build:core && pnpm --filter deckthis build",
-    "build:core": "pnpm --filter webppt-core build",
+    "build:core": "pnpm --filter deckthis-core build",
     "dev": "pnpm --filter deckthis dev",
     "test": "pnpm -r test",
-    "test:core": "pnpm --filter webppt-core test",
+    "test:core": "pnpm --filter deckthis-core test",
     "test:cli": "pnpm --filter deckthis test"
   }
 }
