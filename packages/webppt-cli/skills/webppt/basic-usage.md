@@ -9,7 +9,7 @@ my-talk/
   03.html        ← slide 3
   _underlay.html ← 可选，自动检测（下层 iframe）
   _overlay.html  ← 可选，自动检测（上层 iframe）
-  index.ts       ← 可选，自定义配置
+  deckthis.config.ts ← 可选，自定义配置
   theme.css      ← 可选，自定义样式
 ```
 

@@ -44,13 +44,13 @@ my-deck/
   03.html
   _overlay.html    # 前景层（页码、Logo 等），可选
   _underlay.html   # 背景装饰层，可选
-  index.ts         # 配置文件，可选
+  deckthis.config.ts # 配置文件，可选
 ```
 
 - `_` 前缀文件不会被当作普通幻灯片，用于 overlay / underlay
-- 配置文件为 `index.ts`，使用 `defineConfig` 导出
+- 配置文件为 `deckthis.config.ts`，使用 `defineConfig` 导出
 
-## 配置（index.ts）
+## 配置（deckthis.config.ts）
 
 ```ts
 import { defineConfig } from "webppt-cli";
@@ -158,7 +158,7 @@ packages/
   webppt-cli/      # 开发服务器 + CLI
     src/cli.ts     # CLI 入口，buildSlidesConfig
     src/dev-server.ts  # Hono 服务器，SSE 热更新，assets/beforeEach
-    src/load-config.ts # esbuild 转换 index.ts 并动态 import
+    src/load-config.ts # 加载 deckthis.config.ts 并动态 import
     src/types.ts   # WebPPTConfig、defineConfig
 examples/
   basic/           # 最简示例
@@ -168,6 +168,6 @@ examples/
 
 ## 问题
 
-- Cannot find module 'webppt-cli' or its corresponding type declarations.
 - assets 支持目录
 - overlay/underlay 支持数据传递和刷新
+- 前进后退更新 URL

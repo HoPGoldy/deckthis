@@ -44,7 +44,7 @@ describe("createFileWatcher", () => {
 
     await new Promise((r) => setTimeout(r, 300));
 
-    await fs.writeFile(path.join(tmpDir, "index.ts"), "export default {}");
+    await fs.writeFile(path.join(tmpDir, "deckthis.config.ts"), "export default {}");
 
     await Promise.race([
       triggered,

@@ -1,7 +1,7 @@
 /**
  * simpleTheme — 一个 webppt 主题插件示例
  *
- * 用法（index.ts）：
+ * 用法（deckthis.config.ts）：
  *   import { simpleTheme } from './_plugin/simple-theme.js'
  *   export default simpleTheme({ title: 'My Talk', thanks: '谢谢大家' })
  *

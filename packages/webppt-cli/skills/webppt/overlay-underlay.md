@@ -19,7 +19,7 @@ webppt 支持两层"全局 iframe"叠加在所有 slide 上：
 
 ## 自动检测
 
-放置 `_underlay.html` 或 `_overlay.html` 在 deck folder 根目录，webppt 自动挂载，无需 `index.ts`。
+放置 `_underlay.html` 或 `_overlay.html` 在 deck folder 根目录，webppt 自动挂载，无需 `deckthis.config.ts`。
 
 ## overlay 最小模板
 
@@ -80,7 +80,7 @@ webppt 支持两层"全局 iframe"叠加在所有 slide 上：
 
 ## 显式指定路径
 
-当 overlay/underlay 不在默认位置时，在 `index.ts` 中显式指定：
+当 overlay/underlay 不在默认位置时，在 `deckthis.config.ts` 中显式指定：
 
 ```typescript
 import { defineConfig } from "deckthis";

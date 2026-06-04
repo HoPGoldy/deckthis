@@ -2,6 +2,8 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import type { WebPPTConfig, ResolvedConfig } from "./types";
 
+const CONFIG_FILE_NAME = "deckthis.config.ts";
+
 export async function buildSlidesConfig(
   folder: string,
   config: WebPPTConfig | null,
@@ -29,7 +31,7 @@ export async function buildSlidesConfig(
 }
 
 export async function loadConfig(folder: string): Promise<WebPPTConfig | null> {
-  const configPath = path.join(folder, "index.ts");
+  const configPath = path.join(folder, CONFIG_FILE_NAME);
 
   try {
     await fs.access(configPath);

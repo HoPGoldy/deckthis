@@ -34,7 +34,7 @@ export function defineConfig(config: WebPPTConfig): WebPPTConfig {
 
 /**
  * Returns the absolute path of the deck folder being served.
- * Only valid when called inside an index.ts config file loaded by webppt.
+ * Only valid when called inside a deckthis.config.ts file loaded by webppt.
  */
 export function getDeckDir(): string {
   const dir = process.env.WEBPPT_DECK_DIR;

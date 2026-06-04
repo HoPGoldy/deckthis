@@ -6,7 +6,7 @@
 
 - **slide** — 普通 HTML 文件（如 `01.html`、`02.html`），文件名以 `_` 开头的会被忽略
 - **deck folder** — 存放所有 slide HTML 的目录，即 `webppt <folder>` 所指向的目录
-- **index.ts** — 可选的配置文件，放在 deck folder 根目录，用于自定义顺序、主题、插件等
+- **deckthis.config.ts** — 可选的配置文件，放在 deck folder 根目录，用于自定义顺序、主题、插件等
 - **overlay / underlay** — 覆盖在所有 slide 上方/下方的 iframe，用于全局 UI（页码、背景等）
 
 ## CLI 快速参考
@@ -21,13 +21,13 @@ webppt skill                 # 复制本 skill 到指定目录
 
 ## 子文档索引
 
-| 文档                                       | 内容                                              |
-| ------------------------------------------ | ------------------------------------------------- |
-| [basic-usage.md](basic-usage.md)           | Slide HTML 结构、键盘快捷键、目录约定             |
-| [configuration.md](configuration.md)       | `index.ts` 配置 API、`defineConfig`、所有选项详解 |
-| [overlay-underlay.md](overlay-underlay.md) | overlay / underlay iframe 机制与通信              |
-| [theme-creation.md](theme-creation.md)     | CSS 主题、`beforeEach` 注入、静态资源挂载         |
-| [plugin-creation.md](plugin-creation.md)   | 可复用插件函数模式（如 `simpleTheme`）            |
+| 文档                                       | 内容                                                        |
+| ------------------------------------------ | ----------------------------------------------------------- |
+| [basic-usage.md](basic-usage.md)           | Slide HTML 结构、键盘快捷键、目录约定                       |
+| [configuration.md](configuration.md)       | `deckthis.config.ts` 配置 API、`defineConfig`、所有选项详解 |
+| [overlay-underlay.md](overlay-underlay.md) | overlay / underlay iframe 机制与通信                        |
+| [theme-creation.md](theme-creation.md)     | CSS 主题、`beforeEach` 注入、静态资源挂载                   |
+| [plugin-creation.md](plugin-creation.md)   | 可复用插件函数模式（如 `simpleTheme`）                      |
 
 ## 包结构
 

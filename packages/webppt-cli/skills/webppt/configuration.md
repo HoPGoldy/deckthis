@@ -1,6 +1,6 @@
-# 配置（index.ts）
+# 配置（deckthis.config.ts）
 
-在 deck folder 根目录创建 `index.ts`，webppt 会自动加载。
+在 deck folder 根目录创建 `deckthis.config.ts`，webppt 会自动加载。
 
 ## 最小示例
 
@@ -88,7 +88,7 @@ beforeEach: async (html, ctx) => {
 
 ## `getDeckDir()`
 
-返回当前 deck folder 的绝对路径。**只能在 `index.ts` 加载期间调用**（webppt 通过环境变量注入）。
+返回当前 deck folder 的绝对路径。**只能在 `deckthis.config.ts` 加载期间调用**（webppt 通过环境变量注入）。
 
 ```typescript
 import { getDeckDir } from "deckthis";

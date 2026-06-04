@@ -15,7 +15,7 @@ webppt .
 
 ```
 with-plugin/
-  index.ts              # 调用插件，传入标题等参数
+  deckthis.config.ts    # 调用插件，传入标题等参数
   01.html ~ 03.html     # 正文幻灯片（封面和致谢页由插件自动插入）
   _plugin/
     simple-theme.ts     # 插件实现：封装主题 CSS、封面页、致谢页

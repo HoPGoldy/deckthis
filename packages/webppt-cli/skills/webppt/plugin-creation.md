@@ -79,10 +79,10 @@ export function simpleTheme(options: SimpleThemeOptions = {}): WebPPTConfig {
 }
 ```
 
-## 在 `index.ts` 中使用插件
+## 在 `deckthis.config.ts` 中使用插件
 
 ```typescript
-// index.ts
+// deckthis.config.ts
 import { simpleTheme } from "./_plugin/simple-theme.js";
 
 export default simpleTheme({

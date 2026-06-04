@@ -48,7 +48,7 @@ code {
 }
 ```
 
-### 2. 在 `index.ts` 中挂载并注入
+### 2. 在 `deckthis.config.ts` 中挂载并注入
 
 ```typescript
 import { join } from "node:path";
