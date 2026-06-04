@@ -57,8 +57,8 @@ import { defineConfig, getDeckDir } from "deckthis";
 const deckRoot = getDeckDir();
 
 export default defineConfig({
-  // 将 theme.css 注册为静态资源（basename → /theme.css）
-  assets: [join(deckRoot, "theme.css")],
+  // 将当前 deck 目录注册为静态资源回退目录
+  assets: [deckRoot],
 
   // 向每张 slide 注入 CSS 链接
   beforeEach: (html) => {
@@ -93,12 +93,10 @@ beforeEach: (html, ctx) => {
 
 ```typescript
 assets: [
-  join(deckRoot, "theme.css"),
-  join(deckRoot, "fonts", "custom-font.woff2"),
-  join(deckRoot, "highlight.min.css"),
-  join(deckRoot, "highlight.min.js"),
+  deckRoot,
+  join(deckRoot, "shared-assets"),
 ],
 ```
 
-> **注意**：`assets` 仅挂载文件的 basename，不保留目录结构。  
-> 例如 `fonts/custom-font.woff2` 访问路径是 `/custom-font.woff2`。
+> **注意**：`assets` 仅支持目录。保留原有目录结构，
+> 例如 `fonts/custom-font.woff2` 访问路径是 `/fonts/custom-font.woff2`。

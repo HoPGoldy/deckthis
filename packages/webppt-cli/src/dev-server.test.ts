@@ -84,22 +84,26 @@ describe("dev-server assets support", () => {
   let close: () => Promise<void>;
   let tmpDir: string;
   let assetDir: string;
+  let secondaryAssetDir: string;
   const port = 14383;
   const base = `http://localhost:${port}`;
 
   beforeAll(async () => {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "webppt-assets-"));
     assetDir = await fs.mkdtemp(path.join(os.tmpdir(), "webppt-assetfiles-"));
+    secondaryAssetDir = await fs.mkdtemp(path.join(os.tmpdir(), "webppt-assetfiles-2-"));
     await fs.writeFile(path.join(tmpDir, "01.html"), "<h1>Slide 1</h1>");
     await fs.writeFile(path.join(assetDir, "theme.css"), "body { color: red; }");
-    await fs.writeFile(path.join(assetDir, "cover.html"), "<h1>Cover</h1>");
+    await fs.mkdir(path.join(assetDir, "nested"));
+    await fs.writeFile(path.join(assetDir, "nested", "cover.html"), "<h1>Cover</h1>");
+    await fs.writeFile(path.join(secondaryAssetDir, "theme.css"), "body { color: blue; }");
 
     close = await startDevServer({
       folder: tmpDir,
       port,
       getConfig: () => ({ slides: ["/01.html"] }),
       getPluginConfig: () => ({
-        assets: [path.join(assetDir, "theme.css"), path.join(assetDir, "cover.html")],
+        assets: [assetDir, secondaryAssetDir],
       }),
     });
   }, 15000);
@@ -108,30 +112,48 @@ describe("dev-server assets support", () => {
     await close();
     await fs.rm(tmpDir, { recursive: true });
     await fs.rm(assetDir, { recursive: true });
+    await fs.rm(secondaryAssetDir, { recursive: true });
   });
 
-  it("serves asset file not present in user folder", async () => {
+  it("serves asset file from configured directories", async () => {
     const res = await fetch(`${base}/theme.css`);
     expect(res.status).toBe(200);
     const text = await res.text();
     expect(text).toContain("color: red");
   });
 
-  it("user folder file takes priority over asset with same name", async () => {
-    // Write a user-folder file with same name as the asset
-    await fs.writeFile(path.join(tmpDir, "cover.html"), "<h1>User Cover</h1>");
+  it("preserves nested paths inside asset directories", async () => {
+    const res = await fetch(`${base}/nested/cover.html`);
+    expect(res.status).toBe(200);
+    const text = await res.text();
+    expect(text).toContain("Cover");
+  });
 
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+  it("user folder file takes priority over asset directories", async () => {
+    await fs.mkdir(path.join(tmpDir, "nested"));
+    await fs.writeFile(path.join(tmpDir, "nested", "cover.html"), "<h1>User Cover</h1>");
+
     try {
-      const res = await fetch(`${base}/cover.html`);
+      const res = await fetch(`${base}/nested/cover.html`);
       expect(res.status).toBe(200);
       const text = await res.text();
       expect(text).toContain("User Cover");
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("cover.html"));
     } finally {
-      warnSpy.mockRestore();
-      await fs.unlink(path.join(tmpDir, "cover.html"));
+      await fs.rm(path.join(tmpDir, "nested"), { recursive: true, force: true });
     }
+  });
+
+  it("uses the first matching asset directory", async () => {
+    const res = await fetch(`${base}/theme.css`);
+    expect(res.status).toBe(200);
+    const text = await res.text();
+    expect(text).toContain("color: red");
+    expect(text).not.toContain("color: blue");
+  });
+
+  it("blocks path traversal outside asset directories", async () => {
+    const res = await fetch(`${base}/../package.json`);
+    expect(res.status).toBe(404);
   });
 
   it("returns 404 for file not in folder or assets", async () => {

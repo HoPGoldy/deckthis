@@ -28,6 +28,7 @@ export interface SimpleThemeOptions {
 
 export function simpleTheme(options: SimpleThemeOptions = {}): DeckthisConfig {
   const { title, subtitle, thanks, thanksSub, config: userConfig = {} } = options;
+  const assetsDir = join(getDeckDir(), "_plugin", "assets");
 
   // 把封面/致谢页的参数通过 data-* 属性注入到 HTML
   const injectPageData = (html: string, data: Record<string, string>): string => {
@@ -41,15 +42,8 @@ export function simpleTheme(options: SimpleThemeOptions = {}): DeckthisConfig {
     // overlay 优先使用用户指定的，否则用插件默认
     overlay: userConfig.overlay ?? "/overlay.html",
 
-    // 插件携带的静态资源：CSS + 封面 + 致谢 + overlay
-    // getDeckDir() 由 webppt 注入，指向当前 deck 目录
-    assets: [
-      ...(userConfig.assets ?? []),
-      join(getDeckDir(), "_plugin", "simple-theme.css"),
-      join(getDeckDir(), "_plugin", "cover.html"),
-      join(getDeckDir(), "_plugin", "thanks.html"),
-      join(getDeckDir(), "_plugin", "overlay.html"),
-    ],
+    // 插件携带的静态资源统一放在 assets 子目录下
+    assets: [...(userConfig.assets ?? []), assetsDir],
 
     // 在发现的 slides 头尾插入封面和致谢页
     order: (discovered) => {

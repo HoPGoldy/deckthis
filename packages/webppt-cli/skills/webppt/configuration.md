@@ -53,15 +53,14 @@ underlay: "/_underlay.html", // 同上
 
 ### `assets`
 
-要挂载为静态资源的文件绝对路径数组。文件以其 basename 作为 URL 路径提供服务。
+要作为静态资源回退源的目录绝对路径数组。请求命中 deck folder 失败后，dev server 会按声明顺序到这些目录下查找同路径文件。
 
 ```typescript
-import { join } from "node:path";
 import { getDeckDir } from "deckthis";
 
 assets: [
-  join(getDeckDir(), "theme.css"),      // 访问 /theme.css
-  join(getDeckDir(), "logo.png"),       // 访问 /logo.png
+  getDeckDir(),                  // 访问 /theme.css -> <deck>/theme.css
+  "/path/to/shared-assets",     // 访问 /images/logo.png -> /path/to/shared-assets/images/logo.png
 ],
 ```
 
@@ -94,7 +93,7 @@ beforeEach: async (html, ctx) => {
 import { getDeckDir } from "deckthis";
 
 const deckRoot = getDeckDir();
-// 用于拼接 assets 路径
+// 用于获取当前 deck 目录并作为 assets 回退目录
 ```
 
 ## `defineConfig`

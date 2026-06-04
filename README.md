@@ -63,8 +63,8 @@ export default defineConfig({
     return intro ? [intro, ...rest] : discovered;
   },
 
-  // 额外静态资源（绝对路径，以 basename 挂载到 /）
-  assets: ["/path/to/theme.css"],
+  // 额外静态资源目录（绝对路径，按请求路径回退查找）
+  assets: ["/path/to/theme-assets"],
 
   // 在每张幻灯片 HTML 被服务前转换（不含 overlay/underlay）
   beforeEach: (html, ctx) => {
@@ -82,7 +82,7 @@ export default defineConfig({
 | 字段         | 类型                                       | 说明                                           |
 | ------------ | ------------------------------------------ | ---------------------------------------------- |
 | `order`      | `(discovered: string[]) => string[]`       | 控制幻灯片顺序，可插入插件提供的额外页         |
-| `assets`     | `string[]`                                 | 绝对路径列表，以文件 basename 提供 HTTP 访问   |
+| `assets`     | `string[]`                                 | 绝对目录路径列表，按请求路径顺序回退查询       |
 | `beforeEach` | `(html, ctx) => string \| Promise<string>` | 每张 slide 的 HTML 转换钩子                    |
 | `overlay`    | `string`                                   | 前景 iframe URL，默认自动检测 `_overlay.html`  |
 | `underlay`   | `string`                                   | 背景 iframe URL，默认自动检测 `_underlay.html` |
@@ -95,7 +95,7 @@ export default defineConfig({
 function myTheme(userConfig = {}) {
   return {
     overlay: "/_theme/overlay.html",
-    assets: ["/path/to/_theme/theme.css"],
+    assets: ["/path/to/_theme"],
     order: (discovered) => [
       "/_theme/cover.html",
       ...(userConfig.order ? userConfig.order(discovered) : discovered),
@@ -168,6 +168,6 @@ examples/
 
 ## 问题
 
-- assets 支持目录
+- assets 仅支持目录
 - overlay/underlay 支持数据传递和刷新
 - 前进后退更新 URL

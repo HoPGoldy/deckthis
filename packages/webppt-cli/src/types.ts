@@ -14,7 +14,7 @@ export interface DeckthisConfig {
   underlay?: string;
   /** Overlay iframe URL. Auto-detected as /_overlay.html if omitted. */
   overlay?: string;
-  /** Absolute paths to extra files served as static assets (basename → URL). */
+  /** Absolute paths to extra directories used as static asset fallbacks. */
   assets?: string[];
   /** Transform each slide's HTML before serving. Not applied to overlay/underlay. */
   beforeEach?: BeforeEachFn;

@@ -24,9 +24,9 @@ with-config/
 ## deckthis.config.ts 说明
 
 - **`order`**：把 `03.html` 排到最前面，其余保持自动发现的顺序
-- **`assets`**：把 `theme.css` 注册为静态资源，使其可通过 `/theme.css` 访问
+- **`assets`**：把当前 deck 目录注册为静态资源回退目录，使 `theme.css` 可通过 `/theme.css` 访问
 - **`beforeEach`**：向每张幻灯片的 `<head>` 注入 `<link rel="stylesheet">`
 - overlay / underlay 由 `_overlay.html` / `_underlay.html` 自动检测，无需在 `deckthis.config.ts` 里声明
 
 `getDeckDir()` 由 webppt 在加载配置时注入，返回当前 deck 目录的绝对路径，
-用于构造 `assets` 中的文件路径。
+用于把当前 deck 目录加入 `assets`。

@@ -1,4 +1,3 @@
-import { join } from "node:path";
 import { defineConfig, getDeckDir } from "deckthis";
 
 const deckRoot = getDeckDir();
@@ -11,8 +10,8 @@ export default defineConfig({
     return s03 ? [s03, ...rest] : discovered;
   },
 
-  // 2. 把本目录下的 theme.css 作为静态资源挂载
-  assets: [join(deckRoot, "theme.css")],
+  // 2. 把当前 deck 目录加入静态资源回退目录
+  assets: [deckRoot],
 
   // 3. 向每张幻灯片注入全局 CSS（beforeEach 仅作用于 slides，不含 overlay/underlay）
   beforeEach: (html) => {

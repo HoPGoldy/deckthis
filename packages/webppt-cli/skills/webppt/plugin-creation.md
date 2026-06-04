@@ -36,6 +36,7 @@ export interface SimpleThemeOptions {
 
 export function simpleTheme(options: SimpleThemeOptions = {}): DeckthisConfig {
   const { title, subtitle, thanks, thanksSub, config: userConfig = {} } = options;
+  const assetsDir = join(getDeckDir(), "_plugin", "assets");
 
   // 将参数注入到 HTML 的 data-* 属性
   const injectPageData = (html: string, data: Record<string, string>): string => {
@@ -48,13 +49,7 @@ export function simpleTheme(options: SimpleThemeOptions = {}): DeckthisConfig {
   return {
     overlay: userConfig.overlay ?? "/overlay.html",
 
-    assets: [
-      ...(userConfig.assets ?? []),
-      join(getDeckDir(), "_plugin", "simple-theme.css"),
-      join(getDeckDir(), "_plugin", "cover.html"),
-      join(getDeckDir(), "_plugin", "thanks.html"),
-      join(getDeckDir(), "_plugin", "overlay.html"),
-    ],
+    assets: [...(userConfig.assets ?? []), assetsDir],
 
     order: userConfig.order,
 
@@ -118,7 +113,7 @@ export default mergeConfigs(simpleTheme({ title: "My Talk" }), codeHighlightPlug
 ### 插件携带 `cover.html` 模板示例
 
 ```html
-<!-- _plugin/cover.html — 封面页 HTML，通过 data-* 接收参数 -->
+<!-- _plugin/assets/cover.html — 封面页 HTML，通过 data-* 接收参数 -->
 <!DOCTYPE html>
 <html lang="zh">
   <head>
@@ -143,5 +138,5 @@ export default mergeConfigs(simpleTheme({ title: "My Talk" }), codeHighlightPlug
 ## 注意事项
 
 - `getDeckDir()` 只能在模块加载期间（顶层或同步调用链）使用，不能延迟到异步回调中
-- 插件携带的 `assets` 文件使用 **basename** 作为 URL，避免同名冲突
+- 插件携带的 `assets` 应该指向目录；dev server 会按请求路径到这些目录中顺序查找文件
 - `beforeEach` 中调用 `userConfig.beforeEach` 时要 `await`，因为用户可能返回 Promise

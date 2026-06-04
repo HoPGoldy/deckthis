@@ -27,7 +27,7 @@ describe("defineConfig", () => {
   });
 
   it("preserves assets array", () => {
-    const config = { assets: ["/abs/path/theme.css"] };
+    const config = { assets: ["/abs/path/theme-assets"] };
     expect(defineConfig(config)).toEqual(config);
   });
 

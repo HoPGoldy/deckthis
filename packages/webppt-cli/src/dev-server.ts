@@ -15,6 +15,19 @@ export interface DevServerOptions {
 
 const vendorDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "../../webppt-core/dist");
 
+function resolveAssetPath(rootDir: string, pathname: string): string | null {
+  const relativePath = pathname.replace(/^\/+/, "");
+  if (!relativePath) return null;
+
+  const candidate = path.resolve(rootDir, relativePath);
+  const relativeToRoot = path.relative(rootDir, candidate);
+  if (relativeToRoot.startsWith("..") || path.isAbsolute(relativeToRoot)) {
+    return null;
+  }
+
+  return candidate;
+}
+
 export async function startDevServer(options: DevServerOptions): Promise<() => Promise<void>> {
   const { folder, port, getConfig, getPluginConfig } = options;
 
@@ -81,12 +94,7 @@ export async function startDevServer(options: DevServerOptions): Promise<() => P
     const resolvedConfig = getConfig();
     const pluginConfig = getPluginConfig?.() ?? {};
     const slideSet = new Set(resolvedConfig.slides);
-
-    // Build asset map: basename → absolute path
-    const assetMap = new Map<string, string>();
-    for (const assetPath of pluginConfig.assets ?? []) {
-      assetMap.set(path.basename(assetPath), assetPath);
-    }
+    const assetDirs = pluginConfig.assets ?? [];
 
     const applyBeforeEach = async (
       html: string,
@@ -104,12 +112,6 @@ export async function startDevServer(options: DevServerOptions): Promise<() => P
     // 1. Try user folder first
     try {
       const content = await fs.readFile(filePath);
-      const basename = path.basename(filePath);
-
-      // Warn if an asset would have been shadowed
-      if (assetMap.has(basename)) {
-        console.warn(`\x1b[33m[webppt] ⚠ asset "${basename}" 被工作目录同名文件覆盖\x1b[0m`);
-      }
 
       if (isHtml(filePath)) {
         const html = content.toString("utf-8");
@@ -121,9 +123,11 @@ export async function startDevServer(options: DevServerOptions): Promise<() => P
       // Fall through to assets
     }
 
-    // 2. Try assets
-    const assetFile = assetMap.get(path.basename(pathname));
-    if (assetFile) {
+    // 2. Try asset directories in declaration order
+    for (const assetDir of assetDirs) {
+      const assetFile = resolveAssetPath(assetDir, pathname);
+      if (!assetFile) continue;
+
       try {
         const content = await fs.readFile(assetFile);
         if (isHtml(assetFile)) {
@@ -133,7 +137,7 @@ export async function startDevServer(options: DevServerOptions): Promise<() => P
         }
         return new Response(content, { headers: { "Content-Type": contentType(assetFile) } });
       } catch {
-        // Fall through to 404
+        continue;
       }
     }
 
