@@ -187,7 +187,7 @@ export function SlideDeck(options: SlideDeckOptions): SlideDeckInstance {
 
   function broadcastSlideChange(index: number, iframe: HTMLIFrameElement): void {
     const data = collectSlideData(iframe);
-    const msg = { type: "webppt:slide-change", index, ...data };
+    const msg = { type: "webppt:slide-change", ...data, current: index + 1, total: slides.length };
     debug("broadcastSlideChange", {
       index,
       data,

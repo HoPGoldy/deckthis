@@ -450,7 +450,7 @@ describe("SlideDeck", () => {
       deck.goto(1);
 
       expect(postMessageSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "webppt:slide-change", index: 1 }),
+        expect.objectContaining({ type: "webppt:slide-change", current: 2, total: 2 }),
         "*",
       );
       deck.destroy();
@@ -475,7 +475,7 @@ describe("SlideDeck", () => {
       deck.goto(1);
 
       expect(postMessageSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "webppt:slide-change", index: 1 }),
+        expect.objectContaining({ type: "webppt:slide-change", current: 2, total: 2 }),
         "*",
       );
       deck.destroy();
@@ -512,7 +512,7 @@ describe("SlideDeck", () => {
       deck.goto(1);
 
       expect(postMessageSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "webppt:slide-change", index: 1, title: "Slide Two" }),
+        expect.objectContaining({ type: "webppt:slide-change", current: 2, total: 2, title: "Slide Two" }),
         "*",
       );
       deck.destroy();
@@ -538,7 +538,7 @@ describe("SlideDeck", () => {
 
       // Should not have broadcast for index 2 yet
       const slide2Calls = postMessageSpy.mock.calls.filter(
-        (args) => (args[0] as { index?: number }).index === 2,
+        (args) => (args[0] as { current?: number }).current === 3,
       );
       expect(slide2Calls).toHaveLength(0);
 
@@ -546,10 +546,10 @@ describe("SlideDeck", () => {
       slideEl.dispatchEvent(new Event("load"));
 
       const slide2CallsAfter = postMessageSpy.mock.calls.filter(
-        (args) => (args[0] as { index?: number }).index === 2,
+        (args) => (args[0] as { current?: number }).current === 3,
       );
       expect(slide2CallsAfter).toHaveLength(1);
-      expect(slide2CallsAfter[0][0]).toMatchObject({ type: "webppt:slide-change", index: 2 });
+      expect(slide2CallsAfter[0][0]).toMatchObject({ type: "webppt:slide-change", current: 3, total: 3 });
       deck.destroy();
     });
   });
