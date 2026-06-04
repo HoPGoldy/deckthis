@@ -1,6 +1,6 @@
 # with-plugin demo
 
-演示如何编写和使用 webppt 插件。插件是一个普通函数，入参自定义，返回标准 `WebPPTConfig`，
+演示如何编写和使用 webppt 插件。插件是一个普通函数，入参自定义，返回标准 `DeckthisConfig`，
 通过组合 `order` / `assets` / `beforeEach` 来封装可复用的主题逻辑。
 
 ## 使用方法

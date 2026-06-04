@@ -5,13 +5,13 @@
  *   import { simpleTheme } from './_plugin/simple-theme.js'
  *   export default simpleTheme({ title: 'My Talk', thanks: '谢谢大家' })
  *
- * 插件是一个普通函数，入参自定义，返回标准 WebPPTConfig。
+ * 插件是一个普通函数，入参自定义，返回标准 DeckthisConfig。
  * 内部通过 wrap 用户传入的配置来叠加自己的逻辑。
  */
 
 import { join } from "node:path";
 import { getDeckDir } from "deckthis";
-import type { WebPPTConfig } from "deckthis";
+import type { DeckthisConfig } from "deckthis";
 
 export interface SimpleThemeOptions {
   /** 封面页标题 */
@@ -22,11 +22,11 @@ export interface SimpleThemeOptions {
   thanks?: string;
   /** 致谢页副文字 */
   thanksSub?: string;
-  /** 用户额外的 WebPPTConfig，插件会将自己的逻辑叠加在上面 */
-  config?: WebPPTConfig;
+  /** 用户额外的 DeckthisConfig，插件会将自己的逻辑叠加在上面 */
+  config?: DeckthisConfig;
 }
 
-export function simpleTheme(options: SimpleThemeOptions = {}): WebPPTConfig {
+export function simpleTheme(options: SimpleThemeOptions = {}): DeckthisConfig {
   const { title, subtitle, thanks, thanksSub, config: userConfig = {} } = options;
 
   // 把封面/致谢页的参数通过 data-* 属性注入到 HTML

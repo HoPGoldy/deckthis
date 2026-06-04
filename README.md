@@ -159,7 +159,7 @@ packages/
     src/cli.ts     # CLI 入口，buildSlidesConfig
     src/dev-server.ts  # Hono 服务器，SSE 热更新，assets/beforeEach
     src/load-config.ts # 加载 deckthis.config.ts 并动态 import
-    src/types.ts   # WebPPTConfig、defineConfig
+    src/types.ts   # DeckthisConfig、defineConfig
 examples/
   basic/           # 最简示例
   with-config/     # defineConfig 示例

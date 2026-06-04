@@ -4,7 +4,7 @@ import { defineConfig } from "./types";
 describe("defineConfig", () => {
   it("returns the exact same object reference", () => {
     const config = { slides: ["/a.html"] };
-    // @ts-expect-error – slides is not part of WebPPTConfig but testing identity
+    // @ts-expect-error – slides is not part of DeckthisConfig but testing identity
     expect(defineConfig(config as never)).toBe(config);
   });
 

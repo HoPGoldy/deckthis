@@ -13,7 +13,7 @@ export default defineConfig({});
 ## 完整类型定义
 
 ```typescript
-interface WebPPTConfig {
+interface DeckthisConfig {
   order?: (discovered: string[]) => string[];
   underlay?: string;
   overlay?: string;

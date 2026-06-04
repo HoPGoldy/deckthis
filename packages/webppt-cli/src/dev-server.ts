@@ -3,14 +3,14 @@ import { serve } from "@hono/node-server";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { WebPPTConfig, ResolvedConfig, BeforeEachFn } from "./types";
+import type { DeckthisConfig, ResolvedConfig, BeforeEachFn } from "./types";
 import { getShellHtml } from "./shell";
 
 export interface DevServerOptions {
   folder: string;
   port: number;
   getConfig(): ResolvedConfig;
-  getPluginConfig?(): Pick<WebPPTConfig, "assets" | "beforeEach">;
+  getPluginConfig?(): Pick<DeckthisConfig, "assets" | "beforeEach">;
 }
 
 const vendorDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "../../webppt-core/dist");

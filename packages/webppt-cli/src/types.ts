@@ -7,7 +7,7 @@ export type BeforeEachContext = {
 
 export type BeforeEachFn = (html: string, ctx: BeforeEachContext) => string | Promise<string>;
 
-export interface WebPPTConfig {
+export interface DeckthisConfig {
   /** Controls slide order. Receives auto-discovered slides, returns the final ordered list. */
   order?: (discovered: string[]) => string[];
   /** Underlay iframe URL. Auto-detected as /_underlay.html if omitted. */
@@ -28,7 +28,7 @@ export interface ResolvedConfig {
 }
 
 /** Identity function that provides TypeScript type inference for config objects. */
-export function defineConfig(config: WebPPTConfig): WebPPTConfig {
+export function defineConfig(config: DeckthisConfig): DeckthisConfig {
   return config;
 }
 

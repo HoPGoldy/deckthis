@@ -1,15 +1,15 @@
 # 插件创建
 
-webppt 插件是一个普通的 TypeScript 函数：接受自定义参数，返回标准 `WebPPTConfig`。  
+webppt 插件是一个普通的 TypeScript 函数：接受自定义参数，返回标准 `DeckthisConfig`。  
 这让主题和功能可以被打包、复用，并通过组合叠加到用户配置上。
 
 ## 插件函数签名
 
 ```typescript
-import type { WebPPTConfig } from "deckthis";
+import type { DeckthisConfig } from "deckthis";
 
-// 插件 = 返回 WebPPTConfig 的函数
-function myPlugin(options: MyOptions): WebPPTConfig {
+// 插件 = 返回 DeckthisConfig 的函数
+function myPlugin(options: MyOptions): DeckthisConfig {
   return {
     /* ... */
   };
@@ -23,7 +23,7 @@ function myPlugin(options: MyOptions): WebPPTConfig {
 
 import { join } from "node:path";
 import { getDeckDir } from "deckthis";
-import type { WebPPTConfig } from "deckthis";
+import type { DeckthisConfig } from "deckthis";
 
 export interface SimpleThemeOptions {
   title?: string;
@@ -31,10 +31,10 @@ export interface SimpleThemeOptions {
   thanks?: string;
   thanksSub?: string;
   /** 用户额外配置，插件会将自己的逻辑叠加在上面 */
-  config?: WebPPTConfig;
+  config?: DeckthisConfig;
 }
 
-export function simpleTheme(options: SimpleThemeOptions = {}): WebPPTConfig {
+export function simpleTheme(options: SimpleThemeOptions = {}): DeckthisConfig {
   const { title, subtitle, thanks, thanksSub, config: userConfig = {} } = options;
 
   // 将参数注入到 HTML 的 data-* 属性
@@ -100,7 +100,7 @@ export default simpleTheme({
 ```typescript
 import { defineConfig } from "deckthis";
 
-function mergeConfigs(a: WebPPTConfig, b: WebPPTConfig): WebPPTConfig {
+function mergeConfigs(a: DeckthisConfig, b: DeckthisConfig): DeckthisConfig {
   return {
     ...a,
     ...b,

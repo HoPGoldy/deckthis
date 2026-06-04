@@ -9,7 +9,7 @@ import { registerDemoCommand } from "./demo";
 import { registerSkillCommand } from "./skill";
 import { createFileWatcher } from "./file-watcher";
 export { defineConfig } from "./types";
-export type { WebPPTConfig, BeforeEachFn, BeforeEachContext } from "./types";
+export type { DeckthisConfig, BeforeEachFn, BeforeEachContext } from "./types";
 export { getDeckDir } from "./types";
 export { buildSlidesConfig } from "./load-config";
 

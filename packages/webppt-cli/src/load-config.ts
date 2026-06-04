@@ -1,12 +1,12 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import type { WebPPTConfig, ResolvedConfig } from "./types";
+import type { DeckthisConfig, ResolvedConfig } from "./types";
 
 const CONFIG_FILE_NAME = "deckthis.config.ts";
 
 export async function buildSlidesConfig(
   folder: string,
-  config: WebPPTConfig | null,
+  config: DeckthisConfig | null,
 ): Promise<ResolvedConfig> {
   const entries = await fs.readdir(folder);
   const htmlFiles = entries.filter((f: string) => f.endsWith(".html") && !f.startsWith("_")).sort();
@@ -30,7 +30,7 @@ export async function buildSlidesConfig(
   };
 }
 
-export async function loadConfig(folder: string): Promise<WebPPTConfig | null> {
+export async function loadConfig(folder: string): Promise<DeckthisConfig | null> {
   const configPath = path.join(folder, CONFIG_FILE_NAME);
 
   try {
@@ -43,7 +43,7 @@ export async function loadConfig(folder: string): Promise<WebPPTConfig | null> {
     // tsx/esm is registered by the parent via --import, so .ts files are importable directly.
     const url = `file://${configPath.replace(/\\/g, "/")}`;
     const mod = await import(url);
-    return (mod.default ?? mod) as WebPPTConfig;
+    return (mod.default ?? mod) as DeckthisConfig;
   } catch (err) {
     console.warn("[webppt] Failed to load config:", err);
     return null;
