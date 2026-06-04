@@ -42,6 +42,22 @@ async function findFreePort(startPort: number): Promise<number> {
   });
 }
 
+async function ensureEsmPackageJson(): Promise<void> {
+  const pkgPath = path.join(process.cwd(), "package.json");
+  try {
+    const raw = await fs.readFile(pkgPath, "utf-8");
+    const pkg = JSON.parse(raw);
+    if (pkg.type === "module") return;
+    pkg.type = "module";
+    await fs.writeFile(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
+    console.warn(
+      '\x1b[33m[deckthis] Added "type": "module" to package.json (required for config loading)\x1b[0m',
+    );
+  } catch {
+    // No package.json found, skip
+  }
+}
+
 export async function runCli(argv = process.argv): Promise<void> {
   const { Command } = await import("commander");
   const program = new Command();
@@ -62,6 +78,7 @@ export async function runCli(argv = process.argv): Promise<void> {
     .action(
       async (folderArg: string, opts: { output: string; width: string; height: string; scale: string }) => {
         const folder = path.resolve(folderArg);
+        await ensureEsmPackageJson();
         const child = spawn(
           process.execPath,
           [
@@ -93,6 +110,7 @@ export async function runCli(argv = process.argv): Promise<void> {
     .option("--port <number>", "Starting port", "39200")
     .action(async (folderArg: string, opts: { port: string }) => {
       const folder = path.resolve(folderArg);
+      await ensureEsmPackageJson();
 
       // Validate folder
       try {
