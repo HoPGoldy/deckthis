@@ -4,9 +4,9 @@ This is the development monorepo for [deckthis](packages/deckthis-cli/README.md)
 
 ## Packages
 
-| Package | Description |
-| ------- | ----------- |
-| [`deckthis`](packages/deckthis-cli) | CLI + dev server — the published npm package |
+| Package                                   | Description                                                                   |
+| ----------------------------------------- | ----------------------------------------------------------------------------- |
+| [`deckthis`](packages/deckthis-cli)       | CLI + dev server — the published npm package                                  |
 | [`deckthis-core`](packages/deckthis-core) | Browser runtime (SlideDeck) — bundled into deckthis, not published separately |
 
 ## Development
