@@ -169,6 +169,28 @@ deckthis demo list             # List built-in demos
 deckthis demo <name>           # Copy a demo to the current directory
 
 deckthis skill                 # Copy the AI coding skill to a skills directory
+
+deckthis export <folder>                        # Export to PPTX (presentation.pptx)
+deckthis export <folder> -o my-talk.pptx        # Custom output path
+deckthis export <folder> --width 1920 --height 1080  # Viewport size (default: 1920×1080)
+deckthis export <folder> --scale 2              # Higher resolution screenshots
+```
+
+### Exporting to PPTX
+
+The `export` command captures each slide at full resolution and packages them into a `.pptx` file. Each slide becomes a full-bleed image in the deck, preserving your CSS, fonts, and all three rendering layers (underlay + slide + overlay).
+
+`export` requires `playwright-chromium` to be installed in your project. Install it once:
+
+```bash
+npm install -D playwright-chromium
+npx playwright install chromium
+```
+
+Then export:
+
+```bash
+deckthis export my-talk -o my-talk.pptx
 ```
 
 ## `getDeckDir()`

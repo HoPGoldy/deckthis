@@ -6,6 +6,7 @@ export default defineConfig({
     cli: "src/cli.ts",
     index: "src/types.ts",
     worker: "src/worker.ts",
+    "export-worker": "src/export-worker.ts",
   },
   format: ["esm"],
   target: "node18",

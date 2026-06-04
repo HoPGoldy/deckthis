@@ -15,6 +15,7 @@ export { buildSlidesConfig } from "./load-config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workerPath = path.join(__dirname, "worker.js");
+const exportWorkerPath = path.join(__dirname, "export-worker.js");
 const _require = createRequire(import.meta.url);
 const tsxEsmPath = _require.resolve("tsx/esm");
 
@@ -49,6 +50,43 @@ export async function runCli(argv = process.argv): Promise<void> {
 
   await registerDemoCommand(program);
   await registerSkillCommand(program);
+
+  program
+    .command("export")
+    .description("Export presentation to PPTX")
+    .argument("<folder>", "Presentation folder path")
+    .option("-o, --output <path>", "Output .pptx file path", "presentation.pptx")
+    .option("--width <number>", "Viewport width in pixels", "1920")
+    .option("--height <number>", "Viewport height in pixels", "1080")
+    .option("--scale <number>", "Screenshot device scale factor", "1")
+    .action(
+      async (folderArg: string, opts: { output: string; width: string; height: string; scale: string }) => {
+        const folder = path.resolve(folderArg);
+        const child = spawn(
+          process.execPath,
+          [
+            "--import",
+            tsxEsmPath,
+            exportWorkerPath,
+            "--folder",
+            folder,
+            "--output",
+            opts.output,
+            "--width",
+            opts.width,
+            "--height",
+            opts.height,
+            "--scale",
+            opts.scale,
+          ],
+          { stdio: "inherit" },
+        );
+        await new Promise<void>((resolve, reject) => {
+          child.on("close", (code) => (code === 0 ? resolve() : reject(new Error(`Exit ${code}`))));
+          child.on("error", reject);
+        });
+      },
+    );
 
   program
     .argument("<folder>", "Presentation folder path")

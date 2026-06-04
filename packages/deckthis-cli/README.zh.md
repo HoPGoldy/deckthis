@@ -171,6 +171,28 @@ deckthis demo list           # 列出内置 demo
 deckthis demo <name>         # 复制 demo 到当前目录
 
 deckthis skill               # 复制 AI 编程 skill 到指定目录
+
+deckthis export <目录>                          # 导出为 PPTX（presentation.pptx）
+deckthis export <目录> -o my-talk.pptx          # 指定输出路径
+deckthis export <目录> --width 1920 --height 1080  # 视口尺寸（默认 1920×1080）
+deckthis export <目录> --scale 2                # 提高截图分辨率
+```
+
+### 导出为 PPTX
+
+`export` 命令会按顺序截取每张幻灯片，打包成 `.pptx` 文件。每张幻灯片以全屏图片的形式嵌入，完整保留 CSS 样式、字体以及三层渲染结构（underlay + slide + overlay）。
+
+`export` 依赖 `playwright-chromium`，需在项目中安装（仅需一次）：
+
+```bash
+npm install -D playwright-chromium
+npx playwright install chromium
+```
+
+安装完成后即可导出：
+
+```bash
+deckthis export my-talk -o my-talk.pptx
 ```
 
 ## `getDeckDir()`
