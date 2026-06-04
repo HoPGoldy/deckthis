@@ -14,6 +14,7 @@ export interface DevServerOptions {
 }
 
 const vendorDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "../../webppt-core/dist");
+const faviconPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "../../webppt-core/favicon.svg");
 
 function resolveAssetPath(rootDir: string, pathname: string): string | null {
   const relativePath = pathname.replace(/^\/+/, "");
@@ -58,6 +59,15 @@ export async function startDevServer(options: DevServerOptions): Promise<() => P
 
   app.get("/__webppt/config", (c) => {
     return c.json(getConfig());
+  });
+
+  app.get("/favicon.svg", async (c) => {
+    try {
+      const content = await fs.readFile(faviconPath);
+      return new Response(content, { headers: { "Content-Type": "image/svg+xml" } });
+    } catch {
+      return c.notFound();
+    }
   });
 
   app.get("/__webppt/:file{.+}", async (c) => {
