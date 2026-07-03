@@ -94,6 +94,10 @@ export function SlideDeck(options: SlideDeckOptions): SlideDeckInstance {
     height: "100%",
   });
 
+  console.info(
+    `[deckthis] To export a PPTX that matches this preview, use --width ${window.innerWidth} --height ${window.innerHeight}.`,
+  );
+
   // ── Underlay ─────────────────────────────────────────────────────────────
   let underlayEl: HTMLIFrameElement | null = null;
   if (underlay) {

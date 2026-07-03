@@ -14,6 +14,11 @@ export interface DeckthisConfig {
   underlay?: string;
   /** Overlay iframe URL. Auto-detected as /_overlay.html if omitted. */
   overlay?: string;
+  /** Default export viewport. CLI --width/--height take precedence over these values. */
+  export?: {
+    width?: number;
+    height?: number;
+  };
   /** Absolute paths to extra directories used as static asset fallbacks. */
   assets?: string[];
   /** Transform each slide's HTML before serving. Not applied to overlay/underlay. */

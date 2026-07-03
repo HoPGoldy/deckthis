@@ -64,7 +64,7 @@ async function loadPlaywright(folder: string) {
 }
 
 export async function exportToPptx(options: ExportOptions): Promise<void> {
-  const { folder, output, width = 1920, height = 1080, scale = 1 } = options;
+  const { folder, output, scale = 1 } = options;
 
   // Validate folder
   try {
@@ -77,6 +77,8 @@ export async function exportToPptx(options: ExportOptions): Promise<void> {
   process.env.DECKTHIS_DECK_DIR = folder;
 
   const config = await loadConfig(folder);
+  const width = options.width ?? config?.export?.width ?? 1920;
+  const height = options.height ?? config?.export?.height ?? 1080;
   const slidesConfig = await buildSlidesConfig(folder, config);
   const { slides } = slidesConfig;
 
@@ -148,6 +150,10 @@ export async function exportToPptx(options: ExportOptions): Promise<void> {
           }
         }
       });
+
+      // Allow CSS transitions (e.g. slide opacity fade-in, overlay title appearance)
+      // to complete before capturing the screenshot.
+      await page.waitForTimeout(400);
 
       const buffer = await page.screenshot({ type: "png" });
       pngBuffers.push(buffer);
