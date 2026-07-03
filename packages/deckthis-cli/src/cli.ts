@@ -72,38 +72,33 @@ export async function runCli(argv = process.argv): Promise<void> {
     .description("Export presentation to PPTX")
     .argument("<folder>", "Presentation folder path")
     .option("-o, --output <path>", "Output .pptx file path", "presentation.pptx")
-    .option("--width <number>", "Viewport width in pixels", "1920")
-    .option("--height <number>", "Viewport height in pixels", "1080")
-    .option("--scale <number>", "Screenshot device scale factor", "1")
-    .option("--wait <number>", "Delay before screenshot capture in milliseconds", "1500")
+    .option("--width <number>", "Viewport width in pixels")
+    .option("--height <number>", "Viewport height in pixels")
+    .option("--scale <number>", "Screenshot device scale factor")
+    .option("--wait <number>", "Delay before screenshot capture in milliseconds")
     .action(
       async (
         folderArg: string,
-        opts: { output: string; width: string; height: string; scale: string; wait: string },
+        opts: { output: string; width?: string; height?: string; scale?: string; wait?: string },
       ) => {
         const folder = path.resolve(folderArg);
         await ensureEsmPackageJson();
-        const child = spawn(
-          process.execPath,
-          [
-            "--import",
-            tsxEsmPath,
-            exportWorkerPath,
-            "--folder",
-            folder,
-            "--output",
-            opts.output,
-            "--width",
-            opts.width,
-            "--height",
-            opts.height,
-            "--scale",
-            opts.scale,
-            "--wait",
-            opts.wait,
-          ],
-          { stdio: "inherit" },
-        );
+        const childArgs = [
+          "--import",
+          tsxEsmPath,
+          exportWorkerPath,
+          "--folder",
+          folder,
+          "--output",
+          opts.output,
+        ];
+
+        if (opts.width) childArgs.push("--width", opts.width);
+        if (opts.height) childArgs.push("--height", opts.height);
+        if (opts.scale) childArgs.push("--scale", opts.scale);
+        if (opts.wait) childArgs.push("--wait", opts.wait);
+
+        const child = spawn(process.execPath, childArgs, { stdio: "inherit" });
         await new Promise<void>((resolve, reject) => {
           child.on("close", (code) => (code === 0 ? resolve() : reject(new Error(`Exit ${code}`))));
           child.on("error", reject);

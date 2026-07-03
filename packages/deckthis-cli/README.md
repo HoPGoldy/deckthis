@@ -174,6 +174,7 @@ deckthis export <folder>                        # Export to PPTX (presentation.p
 deckthis export <folder> -o my-talk.pptx        # Custom output path
 deckthis export <folder> --width 1920 --height 1080  # Viewport size (default: 1920×1080)
 deckthis export <folder> --scale 2              # Higher resolution screenshots
+deckthis export <folder> --wait 3000            # Wait longer before each screenshot
 ```
 
 ### Exporting to PPTX
@@ -192,6 +193,24 @@ Then export:
 ```bash
 deckthis export my-talk -o my-talk.pptx
 ```
+
+You can tune export timing with `--wait <ms>` when a deck needs extra time for CSS transitions or delayed overlay updates. The default is `1500`, so you usually do not need to set it explicitly.
+
+You can also provide default export settings in `deckthis.config.ts`:
+
+```ts
+import { defineConfig } from "deckthis";
+
+export default defineConfig({
+  export: {
+    width: 1504,
+    height: 831,
+    wait: 3000,
+  },
+});
+```
+
+CLI flags take precedence over `config.export`.
 
 ## `getDeckDir()`
 

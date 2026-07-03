@@ -176,6 +176,7 @@ deckthis export <目录>                          # 导出为 PPTX（presentatio
 deckthis export <目录> -o my-talk.pptx          # 指定输出路径
 deckthis export <目录> --width 1920 --height 1080  # 视口尺寸（默认 1920×1080）
 deckthis export <目录> --scale 2                # 提高截图分辨率
+deckthis export <目录> --wait 3000              # 截图前额外等待更久
 ```
 
 ### 导出为 PPTX
@@ -194,6 +195,24 @@ npx playwright install chromium
 ```bash
 deckthis export my-talk -o my-talk.pptx
 ```
+
+如果某个 deck 里有较慢的 CSS transition 或 overlay 延迟更新，可以通过 `--wait <毫秒>` 调整导出前的等待时间。默认值是 `1500`，所以大多数情况下不需要显式配置。
+
+也可以在 `deckthis.config.ts` 中提供默认导出配置：
+
+```ts
+import { defineConfig } from "deckthis";
+
+export default defineConfig({
+  export: {
+    width: 1504,
+    height: 831,
+    wait: 3000,
+  },
+});
+```
+
+CLI 参数优先级高于 `config.export`。
 
 ## `getDeckDir()`
 
