@@ -16,6 +16,8 @@ export interface ExportOptions {
   height?: number;
   /** Device scale factor / screenshot resolution (default: 1) */
   scale?: number;
+  /** Delay before screenshot capture in milliseconds (default: 1500) */
+  wait?: number;
 }
 
 async function findFreePort(startPort: number): Promise<number> {
@@ -79,6 +81,7 @@ export async function exportToPptx(options: ExportOptions): Promise<void> {
   const config = await loadConfig(folder);
   const width = options.width ?? config?.export?.width ?? 1920;
   const height = options.height ?? config?.export?.height ?? 1080;
+  const wait = options.wait ?? config?.export?.wait ?? 1500;
   const slidesConfig = await buildSlidesConfig(folder, config);
   const { slides } = slidesConfig;
 
@@ -153,7 +156,7 @@ export async function exportToPptx(options: ExportOptions): Promise<void> {
 
       // Allow CSS transitions (e.g. slide opacity fade-in, overlay title appearance)
       // to complete before capturing the screenshot.
-      await page.waitForTimeout(400);
+      await page.waitForTimeout(wait);
 
       const buffer = await page.screenshot({ type: "png" });
       pngBuffers.push(buffer);

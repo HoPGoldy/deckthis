@@ -75,8 +75,12 @@ export async function runCli(argv = process.argv): Promise<void> {
     .option("--width <number>", "Viewport width in pixels", "1920")
     .option("--height <number>", "Viewport height in pixels", "1080")
     .option("--scale <number>", "Screenshot device scale factor", "1")
+    .option("--wait <number>", "Delay before screenshot capture in milliseconds", "1500")
     .action(
-      async (folderArg: string, opts: { output: string; width: string; height: string; scale: string }) => {
+      async (
+        folderArg: string,
+        opts: { output: string; width: string; height: string; scale: string; wait: string },
+      ) => {
         const folder = path.resolve(folderArg);
         await ensureEsmPackageJson();
         const child = spawn(
@@ -95,6 +99,8 @@ export async function runCli(argv = process.argv): Promise<void> {
             opts.height,
             "--scale",
             opts.scale,
+            "--wait",
+            opts.wait,
           ],
           { stdio: "inherit" },
         );

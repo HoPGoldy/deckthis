@@ -2,7 +2,7 @@
  * Child process entry point for the export command.
  *
  * Spawned by cli.ts with:
- *   node --import tsx/esm dist/export-worker.js --folder <path> --output <path> [--width N] [--height N] [--scale N]
+ *   node --import tsx/esm dist/export-worker.js --folder <path> --output <path> [--width N] [--height N] [--scale N] [--wait N]
  *
  * tsx/esm registers a Node.js loader hook so that dynamic import() of .ts config
  * files works natively (e.g. deckthis.config.ts).
@@ -27,6 +27,7 @@ if (!folder || !output) {
 const width = getArg("--width");
 const height = getArg("--height");
 const scale = getArg("--scale");
+const wait = getArg("--wait");
 
 await exportToPptx({
   folder,
@@ -34,4 +35,5 @@ await exportToPptx({
   width: width ? parseInt(width, 10) : undefined,
   height: height ? parseInt(height, 10) : undefined,
   scale: scale ? parseFloat(scale) : undefined,
+  wait: wait ? parseInt(wait, 10) : undefined,
 });

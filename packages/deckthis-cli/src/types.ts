@@ -18,6 +18,8 @@ export interface DeckthisConfig {
   export?: {
     width?: number;
     height?: number;
+    /** Delay before screenshot capture in milliseconds. CLI --wait takes precedence. */
+    wait?: number;
   };
   /** Absolute paths to extra directories used as static asset fallbacks. */
   assets?: string[];
