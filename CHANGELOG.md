@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.1.7](https://github.com/HoPGoldy/deckthis/compare/v0.1.6...v0.1.7) (2026-07-08)
+
+
+### Features
+
+* add deckthis image generation commands ([56a7a35](https://github.com/HoPGoldy/deckthis/commit/56a7a35413c7c02eaa919d4a628f0d6fe3bb049c))
+
 ## [0.1.6](https://github.com/HoPGoldy/deckthis/compare/v0.1.5...v0.1.6) (2026-07-03)
 
 ## [0.1.5](https://github.com/HoPGoldy/deckthis/compare/v0.1.4...v0.1.5) (2026-07-03)
