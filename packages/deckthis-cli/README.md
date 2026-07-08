@@ -168,6 +168,9 @@ deckthis <folder> --port 3000  # Use a custom port
 deckthis demo list             # List built-in demos
 deckthis demo <name>           # Copy a demo to the current directory
 
+deckthis img-gen "prompt"      # Generate a PNG image
+deckthis img-edit in.png "prompt"   # Edit an existing PNG image
+
 deckthis skill                 # Copy the AI coding skill to a skills directory
 
 deckthis export <folder>                        # Export to PPTX (presentation.pptx)
@@ -211,6 +214,32 @@ export default defineConfig({
 ```
 
 CLI flags take precedence over `config.export`.
+
+### Image Generation Commands
+
+`deckthis` includes image generation commands migrated from `tiny-image-gen`.
+
+Supported commands:
+
+```bash
+deckthis img-gen "a minimal geometric poster with bold orange and black shapes"
+deckthis img-edit ./input.png "turn this into a cleaner flat illustration poster"
+```
+
+Common options:
+
+- `--size` supports `1024x1024`, `1792x1024`, and `1024x1792`; default is `1024x1024`
+- `--out` is optional; if omitted, the command writes `./output-<timestamp>.png`
+
+If you want to use image generation, run the command directly and follow the CLI prompt to configure the required `DECKTHIS_IMG_*` environment variables.
+
+Notes:
+
+- supported sizes are `1024x1024`, `1792x1024`, and `1024x1792`
+- output is always a single PNG image
+- if `--out` is omitted, the command writes `output-<timestamp>.png` in the current working directory
+- before the request starts, the CLI prints `Generating image, this may take some time...`
+- if required environment variables are missing, the CLI prints the exact `export ...` commands to run for `openai` or `azure`
 
 ## `getDeckDir()`
 

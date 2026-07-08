@@ -6,6 +6,7 @@ import { createRequire } from "node:module";
 import { spawn, type ChildProcess } from "node:child_process";
 import { buildSlidesConfig } from "./load-config";
 import { registerDemoCommand } from "./demo";
+import { registerImgxCommand } from "./imgx";
 import { registerSkillCommand } from "./skill";
 import { createFileWatcher } from "./file-watcher";
 export { defineConfig } from "./types";
@@ -65,6 +66,7 @@ export async function runCli(argv = process.argv): Promise<void> {
   program.name("deckthis").description("Web presentation tool").version("0.0.1");
 
   await registerDemoCommand(program);
+  await registerImgxCommand(program);
   await registerSkillCommand(program);
 
   program
