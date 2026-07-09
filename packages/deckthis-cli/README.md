@@ -228,7 +228,7 @@ deckthis img-edit ./input.png "turn this into a cleaner flat illustration poster
 
 Common options:
 
-- `--size` supports `1024x1024`, `1792x1024`, and `1024x1792`; default is `1024x1024`
+- `--size` supports `1024x1024`, `1792x1024`, and `1024x1792`; default is `1792x1024`
 - `--out` is optional; if omitted, the command writes `./output-<timestamp>.png`
 
 If you want to use image generation, run the command directly and follow the CLI prompt to configure the required `DECKTHIS_IMG_*` environment variables.

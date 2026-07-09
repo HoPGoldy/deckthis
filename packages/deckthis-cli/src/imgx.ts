@@ -4,14 +4,14 @@ import { editImage, generateImage } from "./imgx-providers";
 import { SUPPORTED_SIZES, type SupportedSize } from "./imgx-types";
 
 function parseSize(value: string | undefined): SupportedSize {
-  const size = (value || "1024x1024") as SupportedSize;
+  const size = (value || "1792x1024") as SupportedSize;
   if (!SUPPORTED_SIZES.includes(size)) {
     throw new Error(`Unsupported size: ${value}. Allowed values: ${SUPPORTED_SIZES.join(", ")}`);
   }
   return size;
 }
 
-const sizeHelp = `Image size (${SUPPORTED_SIZES.join(" | ")}, default: 1024x1024)`;
+const sizeHelp = `Image size (${SUPPORTED_SIZES.join(" | ")}, default: 1792x1024)`;
 const outHelp = "Output PNG path (optional, default: ./output-<timestamp>.png)";
 
 export async function registerImgxCommand(program: import("commander").Command): Promise<void> {
