@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.1.8](https://github.com/HoPGoldy/deckthis/compare/v0.1.7...v0.1.8) (2026-07-09)
+
+
+### Features
+
+* default image commands to 16:9 ([4cd1ec0](https://github.com/HoPGoldy/deckthis/commit/4cd1ec09649637bd6b7b1c808165e17838f1aa64))
+
 ## [0.1.7](https://github.com/HoPGoldy/deckthis/compare/v0.1.6...v0.1.7) (2026-07-08)
 
 

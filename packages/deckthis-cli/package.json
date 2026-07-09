@@ -1,6 +1,6 @@
 {
   "name": "deckthis",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Write presentations as HTML files, served with a lightweight dev server",
   "keywords": [
     "presentation",
